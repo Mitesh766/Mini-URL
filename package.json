@@ -1,0 +1,19 @@
+{
+  "name": "url-shortener",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "frontend": "cd frontend && npm run dev",
+    "backend": "cd backend && nodemon app.js",
+    "dev": "concurrently \" npm run frontend\" \" npm run backend \"   "
+  },
+  "author": "Mitesh Agrawal",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "concurrently": "^9.1.2",
+    "dotenv": "^16.5.0"
+  }
+}
