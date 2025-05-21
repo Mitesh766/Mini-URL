@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+/* html,body{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+} */
+
+#app {
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  padding: 5rem;
+}
