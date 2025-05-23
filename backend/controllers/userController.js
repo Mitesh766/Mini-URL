@@ -2,6 +2,7 @@ import User from "../models/userModel.js";
 import asyncHandler from "../utils/asyncHandler.js"; // Add `.js` if using ESModules
 import bcrypt from "bcrypt";
 import validator from "validator";
+import jwt from "jsonwebtoken";
 
 /**
  * @desc    Registers a new user after validating input
@@ -18,7 +19,7 @@ import validator from "validator";
  * 7. Respond with success message and user info (excluding password).
  */
 export const register = asyncHandler(async (req, res) => {
-  if(!req.body){
+  if (!req.body) {
     res.status(400);
     throw new Error("Please fill all the details");
   }
@@ -56,6 +57,13 @@ export const register = asyncHandler(async (req, res) => {
     email,
     password: hashedPassword,
   });
+  const token = user.generateAuthToken();
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+    sameSite: "strict",
+  });
 
   const savedUser = await user.save();
 
@@ -65,4 +73,48 @@ export const register = asyncHandler(async (req, res) => {
     username: savedUser.username,
     email: savedUser.email,
   });
+});
+
+export const login = asyncHandler(async (req, res) => {
+  if (!req.body) {
+    res.status(400);
+    throw new Error("Please fill all the details");
+  }
+
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    res.status(400);
+    throw new Error("Please fill all the details");
+  }
+
+  if (!validator.isEmail(email)) {
+    res.status(400);
+    throw new Error("Invalid Email Id");
+  }
+
+  if (!validator.isStrongPassword(password)) {
+    res.status(400);
+    throw new Error("Invalid password format");
+  }
+
+  const user = await User.findOne({
+    email,
+  });
+
+  const isUserValid = await bcrypt.compare(password, user.password);
+  if (!isUserValid) {
+    res.status(403);
+    throw new Error("Invalid credentials");
+  }
+
+  const token = await user.generateAuthToken();
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+    sameSite: "strict",
+  });
+  
+
 });
