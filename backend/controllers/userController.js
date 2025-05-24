@@ -23,7 +23,7 @@ export const register = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Please fill all the details");
   }
-  const { username, email, password } = req.body;
+  const { username, email, password, confirmPassword } = req.body;
 
   if (!username || !email || !password) {
     res.status(400);
@@ -43,6 +43,11 @@ export const register = asyncHandler(async (req, res) => {
   if (!validator.isStrongPassword(password)) {
     res.status(400);
     throw new Error("Invalid password format");
+  }
+
+  if (password !== confirmPassword) {
+    res.status(400);
+    throw new Error("Passwords do not match");
   }
 
   const alreadyExists = await User.findOne({ email });
@@ -70,10 +75,31 @@ export const register = asyncHandler(async (req, res) => {
   res.status(201).json({
     success: true,
     message: "User created successfully",
+    userId: savedUser._id,
     username: savedUser.username,
     email: savedUser.email,
   });
 });
+
+
+
+
+
+
+/**
+ * @desc    Logs in an existing user after validating credentials
+ * @route   POST /api/user/login
+ * @access  Public
+ *
+ * Steps:
+ * 1. Check if email and password are provided in the request body.
+ * 2. Validate the email format using the validator package.
+ * 3. Look up the user in the database using the provided email.
+ * 4. If user is found, compare the hashed password using bcrypt.
+ * 5. If password matches, generate an authentication token.
+ * 6. Store the token in a secure, HTTP-only cookie.
+ * 7. Respond with a success message and user info (excluding password).
+ */
 
 export const login = asyncHandler(async (req, res) => {
   if (!req.body) {
@@ -93,18 +119,18 @@ export const login = asyncHandler(async (req, res) => {
     throw new Error("Invalid Email Id");
   }
 
-  if (!validator.isStrongPassword(password)) {
-    res.status(400);
-    throw new Error("Invalid password format");
-  }
-
   const user = await User.findOne({
     email,
   });
 
+  if (!user) {
+    res.status(401);
+    throw new Error("Invalid user");
+  }
+
   const isUserValid = await bcrypt.compare(password, user.password);
   if (!isUserValid) {
-    res.status(403);
+    res.status(401);
     throw new Error("Invalid credentials");
   }
 
@@ -115,6 +141,11 @@ export const login = asyncHandler(async (req, res) => {
     maxAge: 1000 * 60 * 60 * 24 * 7,
     sameSite: "strict",
   });
-  
 
+  res.status(200).json({
+    success: true,
+    message: "User logged in successfully",
+    username: user.username,
+    email: user.email,
+  });
 });
