@@ -151,7 +151,7 @@ const UrlGenerator = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white relative">
-            
+
 
             <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
                 {/* Header */}
@@ -171,7 +171,7 @@ const UrlGenerator = () => {
                         <div className="bg-gradient-to-r from-purple-400 to-pink-400 p-2 rounded-lg">
                             <Link className="w-5 h-5 sm:w-6 sm:h-6" />
                         </div>
-                        <span className="text-lg sm:text-xl font-bold">slink</span>
+                        <span className="text-lg sm:text-2xl font-bold">Slink</span>
                     </div>
                 </div>
 
@@ -211,8 +211,8 @@ const UrlGenerator = () => {
                                         type="button"
                                         onClick={() => setFormData(prev => ({ ...prev, aliasType: 'random', customAlias: '' }))}
                                         className={`p-2.5 sm:p-3 rounded-lg border transition-all duration-300 ${formData.aliasType === 'random'
-                                                ? 'bg-purple-600/50 border-purple-500 text-white'
-                                                : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
+                                            ? 'bg-purple-600/50 border-purple-500 text-white'
+                                            : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
                                             }`}
                                     >
                                         <RefreshCw className="w-4 h-4 mx-auto mb-1" />
@@ -222,8 +222,8 @@ const UrlGenerator = () => {
                                         type="button"
                                         onClick={() => setFormData(prev => ({ ...prev, aliasType: 'custom' }))}
                                         className={`p-2.5 sm:p-3 rounded-lg border transition-all duration-300 ${formData.aliasType === 'custom'
-                                                ? 'bg-purple-600/50 border-purple-500 text-white'
-                                                : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
+                                            ? 'bg-purple-600/50 border-purple-500 text-white'
+                                            : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
                                             }`}
                                     >
                                         <Settings className="w-4 h-4 mx-auto mb-1" />
@@ -393,8 +393,8 @@ const UrlGenerator = () => {
                                         <button
                                             onClick={handleCopy}
                                             className={`p-2 rounded-lg transition-all duration-300 flex-shrink-0 ${copied
-                                                    ? 'bg-green-600 text-white'
-                                                    : 'bg-white/10 hover:bg-white/20 text-gray-300'
+                                                ? 'bg-green-600 text-white'
+                                                : 'bg-white/10 hover:bg-white/20 text-gray-300'
                                                 }`}
                                         >
                                             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}

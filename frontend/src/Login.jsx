@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { Link, Mail, Lock, User, Eye, EyeOff, ArrowRight, Github } from 'lucide-react';
+import { Link, Mail, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import validator from "validator"
+import Notification from './Notification';
 
 const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("")
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -21,34 +25,42 @@ const Login = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Handle form submission logic here
+        if (!isLogin && formData.name.length < 2) {
+            setErrorMessage("Name must be at least 2 characters long.");
+            return;
+        }
+
+        if (!validator.isEmail(formData.email)) {
+            setErrorMessage("Invalid Email Address");
+            return;
+
+        }
+
+        if (!validator.isStrongPassword(formData.password)) {
+            setErrorMessage(
+                "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character."
+            );
+            return;
+        }
+
+        if (formData.password !== formData.confirmPassword) {
+            setErrorMessage("Passwords do not match. Please re-enter the same password in both fields.");
+            return;
+        }
+
+
         console.log('Form submitted:', formData);
     };
 
     const toggleMode = () => {
         setIsLogin(!isLogin);
-        setFormData({
-            name: '',
-            email: '',
-            password: '',
-            confirmPassword: ''
-        });
+
     };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">
-            {/* Fixed Background Gradient Overlay */}
-            <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 -z-10"></div>
+            {errorMessage && <Notification messageType="error" message={errorMessage} onClose={() => setErrorMessage(false)} />}
 
-            {/* Animated Background Elements */}
-            <div className="fixed inset-0 overflow-hidden -z-10">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-4000"></div>
-                {/* Additional gradient orbs for better coverage */}
-                <div className="absolute top-20 left-20 w-60 h-60 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-pulse animation-delay-1000"></div>
-                <div className="absolute bottom-20 right-20 w-60 h-60 bg-violet-500 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-pulse animation-delay-3000"></div>
-            </div>
 
             {/* Main Content Container */}
             <div className="flex items-center justify-center min-h-screen p-4 py-8">
@@ -87,10 +99,11 @@ const Login = () => {
                                         Full Name
                                     </label>
                                     <div className="relative">
-                                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                        <User className="absolute left-3 top-1/3 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                                         <input
                                             type="text"
                                             name="name"
+                                            autoComplete="off"
                                             value={formData.name}
                                             onChange={handleInputChange}
                                             className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
@@ -106,11 +119,12 @@ const Login = () => {
                                 <label className="block text-sm font-medium text-gray-300 mb-2">
                                     Email Address
                                 </label>
-                                <div className="relative">
-                                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                <div className="relative flex items-center justify-center">
+                                    <Mail className="absolute left-3 top-1/3 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                                     <input
                                         type="email"
                                         name="email"
+                                        autoComplete="off"
                                         value={formData.email}
                                         onChange={handleInputChange}
                                         className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
@@ -126,7 +140,7 @@ const Login = () => {
                                     Password
                                 </label>
                                 <div className="relative">
-                                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                    <Lock className="absolute left-3 top-1/3 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                                     <input
                                         type={showPassword ? "text" : "password"}
                                         name="password"
@@ -139,7 +153,7 @@ const Login = () => {
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors duration-200"
+                                        className="absolute right-3 top-1/3 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors duration-200"
                                     >
                                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                     </button>
@@ -153,7 +167,7 @@ const Login = () => {
                                         Confirm Password
                                     </label>
                                     <div className="relative">
-                                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                        <Lock className="absolute left-3 top-1/3 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                                         <input
                                             type={showConfirmPassword ? "text" : "password"}
                                             name="confirmPassword"
@@ -166,7 +180,7 @@ const Login = () => {
                                         <button
                                             type="button"
                                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors duration-200"
+                                            className="absolute right-3 top-1/3 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors duration-200"
                                         >
                                             {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                         </button>
@@ -188,6 +202,8 @@ const Login = () => {
                                 </div>
                             </button>
                         </div>
+
+
 
                         {/* Divider */}
                         {/* <div className="my-6 flex items-center animate-fade-in-up animation-delay-700">

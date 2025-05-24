@@ -8,8 +8,8 @@ import ReportIssue from './ReportIssue'
 const App = () => {
   return (
   //  <LandingPage/>
-  // <Login/>
-  <UrlGenerator/>
+  <Login/>
+  // <UrlGenerator/>
   // <ManageUrls/>
   // <ReportIssue/>
   )
