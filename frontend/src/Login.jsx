@@ -39,7 +39,7 @@ const Login = () => {
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">
             {/* Fixed Background Gradient Overlay */}
             <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 -z-10"></div>
-            
+
             {/* Animated Background Elements */}
             <div className="fixed inset-0 overflow-hidden -z-10">
                 <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
@@ -174,17 +174,7 @@ const Login = () => {
                                 </div>
                             )}
 
-                            {/* Forgot Password (Login only) */}
-                            {isLogin && (
-                                <div className="text-right animate-fade-in-up animation-delay-500">
-                                    <button
-                                        type="button"
-                                        className="text-sm text-purple-400 hover:text-purple-300 transition-colors duration-200"
-                                    >
-                                        Forgot Password?
-                                    </button>
-                                </div>
-                            )}
+
 
                             {/* Submit Button */}
                             <button
@@ -200,22 +190,22 @@ const Login = () => {
                         </div>
 
                         {/* Divider */}
-                        <div className="my-6 flex items-center animate-fade-in-up animation-delay-700">
+                        {/* <div className="my-6 flex items-center animate-fade-in-up animation-delay-700">
                             <div className="flex-1 border-t border-white/10"></div>
                             <span className="px-4 text-sm text-gray-400">or</span>
                             <div className="flex-1 border-t border-white/10"></div>
-                        </div>
+                        </div> */}
 
                         {/* Social Login */}
-                        <button className="w-full px-6 py-3 bg-white/5 border border-white/10 rounded-xl font-medium text-white hover:bg-white/10 transition-all duration-300 mb-6 animate-fade-in-up animation-delay-800">
+                        {/* <button className="w-full px-6 py-3 bg-white/5 border border-white/10 rounded-xl font-medium text-white hover:bg-white/10 transition-all duration-300 mb-6 animate-fade-in-up animation-delay-800">
                             <div className="flex items-center justify-center space-x-2">
                                 <Github className="w-5 h-5" />
                                 <span>Continue with GitHub</span>
                             </div>
-                        </button>
+                        </button> */}
 
                         {/* Toggle Auth Mode */}
-                        <div className="text-center animate-fade-in-up animation-delay-900">
+                        <div className="text-center animate-fade-in-up animation-delay-900 mt-5">
                             <p className="text-gray-400 text-sm">
                                 {isLogin ? "Don't have an account?" : "Already have an account?"}
                                 <button
@@ -244,100 +234,6 @@ const Login = () => {
                     </div>
                 </div>
             </div>
-
-            {/* Custom CSS for animations */}
-            <style jsx>{`
-                @keyframes fade-in-up {
-                  from {
-                    opacity: 0;
-                    transform: translateY(30px);
-                  }
-                  to {
-                    opacity: 1;
-                    transform: translateY(0);
-                  }
-                }
-
-                @keyframes slide-in {
-                  from {
-                    opacity: 0;
-                    transform: translateY(-20px);
-                    max-height: 0;
-                    margin-bottom: 0;
-                  }
-                  to {
-                    opacity: 1;
-                    transform: translateY(0);
-                    max-height: 100px;
-                    margin-bottom: 1rem;
-                  }
-                }
-
-                .animate-fade-in-up {
-                  animation: fade-in-up 0.6s ease-out forwards;
-                }
-
-                .animate-slide-in {
-                  animation: slide-in 0.4s ease-out forwards;
-                }
-
-                .animation-delay-200 {
-                  animation-delay: 0.2s;
-                  opacity: 0;
-                }
-
-                .animation-delay-300 {
-                  animation-delay: 0.3s;
-                  opacity: 0;
-                }
-
-                .animation-delay-400 {
-                  animation-delay: 0.4s;
-                  opacity: 0;
-                }
-
-                .animation-delay-500 {
-                  animation-delay: 0.5s;
-                  opacity: 0;
-                }
-
-                .animation-delay-600 {
-                  animation-delay: 0.6s;
-                  opacity: 0;
-                }
-
-                .animation-delay-700 {
-                  animation-delay: 0.7s;
-                  opacity: 0;
-                }
-
-                .animation-delay-800 {
-                  animation-delay: 0.8s;
-                  opacity: 0;
-                }
-
-                .animation-delay-900 {
-                  animation-delay: 0.9s;
-                  opacity: 0;
-                }
-
-                .animation-delay-1000 {
-                  animation-delay: 1s;
-                  opacity: 0;
-                }
-
-                .animation-delay-2000 {
-                  animation-delay: 2s;
-                }
-
-                .animation-delay-3000 {
-                  animation-delay: 3s;
-                }
-
-                .animation-delay-4000 {
-                  animation-delay: 4s;
-                }
-            `}</style>
         </div>
     );
 };

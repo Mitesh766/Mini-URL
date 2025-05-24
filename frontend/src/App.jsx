@@ -9,9 +9,9 @@ const App = () => {
   return (
   //  <LandingPage/>
   // <Login/>
-  // <UrlGenerator/>
+  <UrlGenerator/>
   // <ManageUrls/>
-  <ReportIssue/>
+  // <ReportIssue/>
   )
 }
 
