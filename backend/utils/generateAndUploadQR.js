@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import cloudinary from './cloudinary.js';
+import cloudinary from '../config/cloudinary.js';
 
 export const generateAndUploadQR = async (url, code) => {
   try {

@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import { generateAndUploadQR } from "../utils/generateAndUploadQr.js";
 import ShortUrl from "../models/ShortUrlModel.js";
 
-import { generateUniqueShortCode } from "../utils/generateUniqueShortCode.js";
+import { generateUniqueShortCode } from "../utils/generateShortCode.js";
 
 /**
  * @desc    Creates a new shortened URL with optional custom alias, password protection, expiration, and one-time usage.

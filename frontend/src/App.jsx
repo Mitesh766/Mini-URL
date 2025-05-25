@@ -19,6 +19,7 @@ const App = () => {
       <Route path="/report" element={<ReportIssue />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="*" element={<PageNotFound />} />
+      <Route path="/:shortCode" element={<RedirectHandler />} />
     </Routes>
   );
 };
