@@ -15,15 +15,17 @@ import {
     X,
     ExternalLink,
     Download,
-    ArrowLeft
+    ArrowLeft,
+    Clock
 } from 'lucide-react';
+import Notification from '../components/Notification';
 
 const UrlGenerator = () => {
     const [formData, setFormData] = useState({
         originalUrl: '',
         customAlias: '',
         aliasType: 'random', // 'random' or 'custom'
-        expirationTime: '',
+        expirationTime: '24h',
         isPasswordProtected: false,
         password: '',
         isOneTime: false
@@ -37,6 +39,15 @@ const UrlGenerator = () => {
     const [showQRCode, setShowQRCode] = useState(false);
     const [copied, setCopied] = useState(false);
 
+    const expirationOptions = [
+        { value: '6h', label: '6 Hours', icon: Clock },
+        { value: '12h', label: '12 Hours', icon: Clock },
+        { value: '24h', label: '24 Hours', icon: Clock },
+        { value: '7d', label: '7 Days', icon: Calendar },
+        { value: '30d', label: '30 Days', icon: Calendar },
+        { value: '90d', label: '90 Days', icon: Calendar }
+    ];
+
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData(prev => ({
@@ -46,6 +57,13 @@ const UrlGenerator = () => {
 
         // Clear error when user starts typing
         if (error) setError('');
+    };
+
+    const handleExpirationChange = (value) => {
+        setFormData(prev => ({
+            ...prev,
+            expirationTime: value
+        }));
     };
 
     const generateRandomAlias = () => {
@@ -139,7 +157,7 @@ const UrlGenerator = () => {
             originalUrl: '',
             customAlias: '',
             aliasType: 'random',
-            expirationTime: '',
+            expirationTime: '24h',
             isPasswordProtected: false,
             password: '',
             isOneTime: false
@@ -151,8 +169,6 @@ const UrlGenerator = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white relative">
-
-
             <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 animate-fade-in-up space-y-4 sm:space-y-0">
@@ -264,23 +280,32 @@ const UrlGenerator = () => {
                                 <div className="space-y-4 animate-slide-down">
                                     {/* Expiration Time */}
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                                        <label className="block text-sm font-medium text-gray-300 mb-3">
                                             <Calendar className="w-4 h-4 inline mr-1" />
                                             Expiration Time
                                         </label>
-                                        <select
-                                            name="expirationTime"
-                                            value={formData.expirationTime}
-                                            onChange={handleInputChange}
-                                            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 text-sm sm:text-base"
-                                        >
-                                            <option value="">Never expires</option>
-                                            <option value="1h">1 Hour</option>
-                                            <option value="24h">24 Hours</option>
-                                            <option value="7d">7 Days</option>
-                                            <option value="30d">30 Days</option>
-                                            <option value="1y">1 Year</option>
-                                        </select>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                            {expirationOptions.map((option) => {
+                                                const IconComponent = option.icon;
+                                                return (
+                                                    <button
+                                                        key={option.value}
+                                                        type="button"
+                                                        onClick={() => handleExpirationChange(option.value)}
+                                                        className={`p-2.5 sm:p-3 rounded-lg border transition-all duration-300 text-center ${
+                                                            formData.expirationTime === option.value
+                                                                ? 'bg-purple-600/50 border-purple-500 text-white shadow-lg shadow-purple-500/25'
+                                                                : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:border-white/20'
+                                                        }`}
+                                                    >
+                                                        <IconComponent className="w-4 h-4 mx-auto mb-1" />
+                                                        <div className="text-xs sm:text-sm font-medium leading-tight">
+                                                            {option.label}
+                                                        </div>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
                                     </div>
 
                                     {/* Password Protection */}
@@ -339,10 +364,7 @@ const UrlGenerator = () => {
 
                             {/* Error Display */}
                             {error && (
-                                <div className="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg flex items-start space-x-2 animate-shake">
-                                    <X className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-                                    <span className="text-red-300 text-sm">{error}</span>
-                                </div>
+                              <Notification message={error} messageType='error' onClose={()=>setError('')}/>
                             )}
 
                             {/* Generate Button */}
@@ -478,7 +500,6 @@ const UrlGenerator = () => {
                     </div>
                 </div>
             </div>
-
         </div>
     );
 };
