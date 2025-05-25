@@ -2,7 +2,7 @@ import mongoose, { mongo } from "mongoose";
 import jwt from "jsonwebtoken";
 const UserSchema = new mongoose.Schema(
   {
-    username: String,
+    fullName: String,
     email: {
       type: String,
       required: true,
@@ -26,6 +26,8 @@ UserSchema.methods.generateAuthToken = function () {
   const token = jwt.sign(
     {
       _id: this._id,
+      email: this.email,
+      fullName: this.fullName,
     },
     process.env.JWT_SECRET_KEY,
     {

@@ -10,7 +10,7 @@ import jwt from "jsonwebtoken";
  * @access  Public
  *
  * Steps:
- * 1. Validate required fields (username, email, password).
+ * 1. Validate required fields (fullName, email, password).
  * 2. Validate email format and password strength using validator package.
  * 3. Check if user already exists with the provided email.
  * 4. Hash password using bcrypt before saving to database.
@@ -23,16 +23,16 @@ export const register = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Please fill all the details");
   }
-  const { username, email, password, confirmPassword } = req.body;
+  const { fullName, email, password, confirmPassword } = req.body;
 
-  if (!username || !email || !password) {
+  if (!fullName || !email || !password) {
     res.status(400);
     throw new Error("Please fill all the details");
   }
 
-  if (username.length < 2) {
+  if (fullName.length < 2) {
     res.status(400);
-    throw new Error("Please enter a valid username");
+    throw new Error("Please enter a valid fullName");
   }
 
   if (!validator.isEmail(email)) {
@@ -58,7 +58,7 @@ export const register = asyncHandler(async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = new User({
-    username,
+    fullName,
     email,
     password: hashedPassword,
   });
@@ -75,17 +75,11 @@ export const register = asyncHandler(async (req, res) => {
   res.status(201).json({
     success: true,
     message: "User created successfully",
-    userId: savedUser._id,
-    username: savedUser.username,
+    _id: savedUser._id,
+    fullName: savedUser.fullName,
     email: savedUser.email,
   });
 });
-
-
-
-
-
-
 
 /**
  * @desc    Logs in an existing user after validating credentials
@@ -145,7 +139,8 @@ export const login = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "User logged in successfully",
-    username: user.username,
+    fullName: user.fullName,
     email: user.email,
+    _id: user._id,
   });
 });

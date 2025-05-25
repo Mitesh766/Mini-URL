@@ -20,7 +20,7 @@ const Login = () => {
     const userData = useSelector(store => store.user.user);
     const isLoading = useSelector(store => store.user.isLoading);
     const [formData, setFormData] = useState({
-        name: '',
+        fullName: '',
         email: '',
         password: '',
         confirmPassword: ''
@@ -35,7 +35,7 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!isLogin && formData.name.length < 2) {
+        if (!isLogin && formData.fullName.length < 2) {
             setErrorMessage("Name must be at least 2 characters long.");
             return;
         }
@@ -62,12 +62,16 @@ const Login = () => {
             dispatch(setLoading(true))
             await loginHandler();
         }
+        else {
+            dispatch(setLoading(true));
+            await registerHandler();
+        }
 
     };
 
     const loginHandler = async () => {
         try {
-            dispatch(setLoading(true)); // Start loading
+            dispatch(setLoading(true));
 
             const { data } = await axios.post(
                 `${USERS_URL}/login`,
@@ -77,10 +81,40 @@ const Login = () => {
                 },
                 { withCredentials: true }
             );
-            dispatch(addUserData(data)); // Send only the actual response data
+            const dataToStore = {
+                fullName: data?.fullName,
+                email: data?.email,
+            }
+            dispatch(addUserData(dataToStore));
             setTimeout(() => {
-                dispatch(setLoading(false)); // Stop loading
-                navigate("/abcd");
+                dispatch(setLoading(false));
+                navigate("/");
+            }, 2000)
+        } catch (err) {
+            setTimeout(() => {
+                dispatch(setLoading(false));
+                setErrorMessage(err.response?.data?.message || err.message);
+            }, 2000)
+        }
+    };
+    const registerHandler = async () => {
+        try {
+            dispatch(setLoading(true));
+
+            const { data } = await axios.post(
+                `${USERS_URL}/register`,
+                formData,
+                { withCredentials: true }
+            );
+            const dataToStore = {
+                fullName: data?.fullName,
+                email: data?.email,
+                _id: data?._id
+            }
+            dispatch(addUserData(dataToStore));
+            setTimeout(() => {
+                dispatch(setLoading(false));
+                navigate("/");
             }, 2000)
         } catch (err) {
             setTimeout(() => {
@@ -142,9 +176,9 @@ const Login = () => {
                                         <User className="absolute left-3 top-1/3 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                                         <input
                                             type="text"
-                                            name="name"
+                                            name="fullName"
                                             autoComplete="off"
-                                            value={formData.name}
+                                            value={formData.fullName}
                                             onChange={handleInputChange}
                                             className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
                                             placeholder="Enter your full name"
