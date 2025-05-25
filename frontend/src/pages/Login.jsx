@@ -5,6 +5,9 @@ import Notification from '../components/Notification';
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import { USERS_URL } from '../utils/constants';
+import { useDispatch, useSelector } from 'react-redux';
+import { addUserData, setLoading } from '../redux/userSlice';
+import LoadingOverlay from '../components/LoadingOverlay';
 
 
 const Login = () => {
@@ -12,9 +15,10 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errorMessage, setErrorMessage] = useState("")
-    const [userData,setUserData]= useState("");
     const navigate = useNavigate()
-
+    const dispatch = useDispatch()
+    const userData = useSelector(store => store.user.user);
+    const isLoading = useSelector(store => store.user.isLoading);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -55,28 +59,37 @@ const Login = () => {
         }
 
         if (isLogin) {
+            dispatch(setLoading(true))
             await loginHandler();
         }
 
-
-        console.log('Form submitted:', formData);
     };
 
     const loginHandler = async () => {
         try {
-            const data = await axios.post(`${USERS_URL}/login`, {
-                email: formData.email,
-                password: formData.password
+            dispatch(setLoading(true)); // Start loading
 
-            }, {
-                withCredentials: true,
-            })
-            console.log(data)
-            navigate("/abcd")
+            const { data } = await axios.post(
+                `${USERS_URL}/login`,
+                {
+                    email: formData.email,
+                    password: formData.password,
+                },
+                { withCredentials: true }
+            );
+            dispatch(addUserData(data)); // Send only the actual response data
+            setTimeout(() => {
+                dispatch(setLoading(false)); // Stop loading
+                navigate("/abcd");
+            }, 2000)
         } catch (err) {
-            <Notification messageType='error' message={err.message} onClose={() => setErrorMessage("")} />
+            setTimeout(() => {
+                dispatch(setLoading(false));
+                setErrorMessage(err.response?.data?.message || err.message);
+            }, 2000)
         }
-    }
+    };
+
 
     const toggleMode = () => {
         setIsLogin(!isLogin);
@@ -85,6 +98,7 @@ const Login = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">
+            {isLoading ? <LoadingOverlay isLoading={isLoading} message={"Please wait while getting logged in ."} /> : ""}
             {errorMessage && <Notification messageType="error" message={errorMessage} onClose={() => setErrorMessage(false)} />}
 
 
@@ -98,7 +112,7 @@ const Login = () => {
                                 <Link className="w-8 h-8 text-white" />
                             </div>
                             <span className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                                Slink
+                                Minli
                             </span>
                         </div>
                         <p className="text-gray-400">

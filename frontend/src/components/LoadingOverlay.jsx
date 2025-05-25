@@ -1,12 +1,12 @@
-
-import { Link, Zap, Loader2 } from 'lucide-react';
+import React from 'react';
+import { Link } from 'lucide-react';
 
 const LoadingOverlay = ({ isLoading, message = "Processing..." }) => {
     if (!isLoading) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-            <div className="bg-gradient-to-br from-slate-900/90 via-purple-900/90 to-slate-900/90 backdrop-blur-md rounded-2xl border border-white/20 p-8 text-center shadow-2xl">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-lg z-[9999] flex items-center justify-center">
+            <div className="bg-gradient-to-br from-slate-900/95 via-purple-900/95 to-slate-900/95 backdrop-blur-xl rounded-2xl border border-white/20 p-8 text-center shadow-2xl">
                 {/* Animated Minli Logo */}
                 <div className="flex items-center justify-center space-x-2 mb-6">
                     <div className="bg-gradient-to-r from-purple-400 to-pink-400 p-3 rounded-lg animate-pulse">
@@ -41,7 +41,4 @@ const LoadingOverlay = ({ isLoading, message = "Processing..." }) => {
     );
 };
 
-
-
-{/* <LoadingOverlay isLoading={isLoading} message={loadingMessage} /> */ }
 export default LoadingOverlay;
