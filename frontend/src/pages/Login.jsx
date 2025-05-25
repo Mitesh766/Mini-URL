@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import { Link, Mail, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import validator from "validator"
-import Notification from './Notification';
+import Notification from '../components/Notification';
+import axios from "axios"
+import { useNavigate } from "react-router-dom"
+import { USERS_URL } from '../utils/constants';
+
 
 const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errorMessage, setErrorMessage] = useState("")
+    const [userData,setUserData]= useState("");
+    const navigate = useNavigate()
 
     const [formData, setFormData] = useState({
         name: '',
@@ -23,7 +29,7 @@ const Login = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!isLogin && formData.name.length < 2) {
             setErrorMessage("Name must be at least 2 characters long.");
@@ -43,14 +49,34 @@ const Login = () => {
             return;
         }
 
-        if (formData.password !== formData.confirmPassword) {
+        if (!isLogin && formData.password !== formData.confirmPassword) {
             setErrorMessage("Passwords do not match. Please re-enter the same password in both fields.");
             return;
+        }
+
+        if (isLogin) {
+            await loginHandler();
         }
 
 
         console.log('Form submitted:', formData);
     };
+
+    const loginHandler = async () => {
+        try {
+            const data = await axios.post(`${USERS_URL}/login`, {
+                email: formData.email,
+                password: formData.password
+
+            }, {
+                withCredentials: true,
+            })
+            console.log(data)
+            navigate("/abcd")
+        } catch (err) {
+            <Notification messageType='error' message={err.message} onClose={() => setErrorMessage("")} />
+        }
+    }
 
     const toggleMode = () => {
         setIsLogin(!isLogin);

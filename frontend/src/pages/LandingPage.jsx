@@ -22,7 +22,7 @@ const LandingPage = () => {
                             <Link className="w-6 h-6" />
                         </div>
                         <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                            Slink
+                            Minli
                         </span>
                     </div>
                     <div className="hidden md:flex space-x-8">
@@ -67,12 +67,12 @@ const LandingPage = () => {
                             </div>
                         </button>
 
-                        {/* <button className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 w-full sm:w-auto">
+                        <button className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 w-full sm:w-auto">
               <div className="flex items-center justify-center space-x-2">
                 <BarChart3 className="w-5 h-5 group-hover:animate-bounce" />
                 <span>Dashboard</span>
               </div>
-            </button> */}
+            </button>
                     </div>
 
                     {/* Features Grid */}

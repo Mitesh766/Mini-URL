@@ -86,6 +86,7 @@ export const register = asyncHandler(async (req, res) => {
 
 
 
+
 /**
  * @desc    Logs in an existing user after validating credentials
  * @route   POST /api/user/login
@@ -100,7 +101,6 @@ export const register = asyncHandler(async (req, res) => {
  * 6. Store the token in a secure, HTTP-only cookie.
  * 7. Respond with a success message and user info (excluding password).
  */
-
 export const login = asyncHandler(async (req, res) => {
   if (!req.body) {
     res.status(400);

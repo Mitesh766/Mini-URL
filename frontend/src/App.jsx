@@ -1,9 +1,11 @@
 import React from 'react'
-import LandingPage from './LandingPage'
-import Login from './Login'
-import UrlGenerator from './UrlGenerator'
-import ManageUrls from './ManageUrls'
-import ReportIssue from './ReportIssue'
+import LandingPage from './pages/LandingPage'
+import Login from './pages/Login'
+import UrlGenerator from './pages/UrlGenerator'
+import ManageUrls from './pages/ManageUrls'
+import ReportIssue from './pages/ReportIssue'
+import Dashboard from './pages/Dashboard'
+
 
 const App = () => {
   return (
@@ -12,6 +14,8 @@ const App = () => {
   // <UrlGenerator/>
   // <ManageUrls/>
   // <ReportIssue/>
+  // <Dashboard/>
+  // <DemoApp/>
   )
 }
 

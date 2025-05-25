@@ -159,7 +159,7 @@ const ManageUrls = () => {
             <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
               {/* Search */}
               <div className="relative flex-1 max-w-full sm:max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
+                <Search className="absolute left-3 top-1/3 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
                 <input
                   type="text"
                   placeholder="Search URLs..."
@@ -172,7 +172,7 @@ const ManageUrls = () => {
               {/* Filter and New URL Button */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
                 <div className="relative">
-                  <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Filter className="absolute left-3 top-1/3 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
