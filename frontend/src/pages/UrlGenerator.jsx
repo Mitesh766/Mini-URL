@@ -26,6 +26,7 @@ import { Link } from 'react-router-dom';
 
 const UrlGenerator = () => {
     const [formData, setFormData] = useState({
+        title: '',
         originalUrl: '',
         customAlias: '',
         aliasType: 'random',
@@ -43,14 +44,7 @@ const UrlGenerator = () => {
     const [showQRCode, setShowQRCode] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    const expirationOptions = [
-        { value: '6h', label: '6 Hours', icon: Clock },
-        { value: '12h', label: '12 Hours', icon: Clock },
-        { value: '24h', label: '24 Hours', icon: Clock },
-        { value: '7d', label: '7 Days', icon: Calendar },
-        { value: '30d', label: '30 Days', icon: Calendar },
-        { value: '90d', label: '90 Days', icon: Calendar }
-    ];
+
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -76,6 +70,10 @@ const UrlGenerator = () => {
 
     const handleGenerate = async () => {
         // Basic validation
+        if (!formData.title) {
+            setError("Please enter a title");
+            return;
+        }
         if (!formData.originalUrl) {
             setError('Please enter a URL to shorten');
             return;
@@ -136,6 +134,7 @@ const UrlGenerator = () => {
 
     const handleReset = () => {
         setFormData({
+            title:'',
             originalUrl: '',
             customAlias: '',
             aliasType: 'random',
@@ -156,9 +155,9 @@ const UrlGenerator = () => {
                 <div className="flex flex-row   items-center justify-between mb-8 animate-fade-in-up space-y-0">
                     <div className="flex items-center space-x-3 sm:space-x-4">
                         <Link to="/">
-                        <button className="p-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 flex-shrink-0">
-                            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                        </button>
+                            <button className="p-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 flex-shrink-0">
+                                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                            </button>
                         </Link>
                         <div className="min-w-0">
                             <h1 className="text-md sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -300,6 +299,22 @@ const UrlGenerator = () => {
                                 <Link className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
                                 <span>URL Details</span>
                             </h2>
+
+                            {/* Title Input */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-300 mb-2">
+                                    Title
+                                </label>
+                                <input
+                                    type="text"
+                                    name="title"
+                                    value={formData.title}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 text-sm sm:text-base"
+                                    placeholder="My Photo Link"
+                                    required
+                                />
+                            </div>
 
                             {/* Original URL Input */}
                             <div className="mb-4">

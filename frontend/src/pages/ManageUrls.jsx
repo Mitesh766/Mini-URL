@@ -347,7 +347,7 @@ const ManageUrls = () => {
           )}
         </div>
       </div>
-
+      
       {/* Edit Modal */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -471,65 +471,7 @@ const ManageUrls = () => {
         </div>
       )}
 
-      {/* Stats Modal */}
-      {showStatsModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-semibold text-white mb-6">Analytics & Stats</h3>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-              <div className="bg-white/5 rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold text-purple-400">1,247</div>
-                <div className="text-gray-400 text-sm">Total Clicks</div>
-              </div>
-              <div className="bg-white/5 rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold text-blue-400">89</div>
-                <div className="text-gray-400 text-sm">Today</div>
-              </div>
-              <div className="bg-white/5 rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold text-green-400">156</div>
-                <div className="text-gray-400 text-sm">This Week</div>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div>
-                <h4 className="text-lg font-semibold text-white mb-3">Click Chart</h4>
-                <div className="bg-white/5 rounded-xl p-4 h-32 flex items-end space-x-1 sm:space-x-2">
-                  {statsData.totalClicks.map((clicks, i) => (
-                    <div
-                      key={i}
-                      className="bg-gradient-to-t from-purple-600 to-pink-600 rounded-t flex-1"
-                      style={{ height: `${(clicks / Math.max(...statsData.totalClicks)) * 100}%` }}
-                    ></div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-lg font-semibold text-white mb-3">Top Countries</h4>
-                <div className="space-y-2">
-                  {statsData.topCountries.map((country, i) => (
-                    <div key={i} className="flex items-center justify-between bg-white/5 rounded-lg p-3">
-                      <span className="text-white text-sm sm:text-base">{country.country}</span>
-                      <span className="text-purple-400 font-semibold text-sm sm:text-base">{country.clicks} clicks</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={() => setShowStatsModal(false)}
-                className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )} 
+     
     
     </div>
   );

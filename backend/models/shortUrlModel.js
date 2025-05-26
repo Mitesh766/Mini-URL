@@ -6,6 +6,7 @@ const ShortUrlSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    title:{type:String,required:true},
     originalUrl: { type: String, required: true },
     shortCode: { type: String, unique: true, required: true },
     shortUrl: { type: String, unique: true, required: true },
