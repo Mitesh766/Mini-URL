@@ -115,42 +115,81 @@ export const getAllUrls = asyncHandler(async (req, res) => {
   });
 });
 
-export const updatePassword = asyncHandler(async (req, res) => {
-  const { newPassword, confirmPassword, urlId } = req.body;
 
-  if (!newPassword || !confirmPassword || !urlId) {
+/**
+ * @desc    Updates or removes password protection for a shortened URL.
+ *          If a new password is provided, it is hashed and saved.
+ *          If an empty string is provided, password protection is removed.
+ * @route   PUT /api/url/delete/:urlId
+ * @access  Private (Requires authenticated user)
+ *
+ * Steps:
+ * 1. Extract `urlId`, `newPassword`, and `confirmPassword` from the request.
+ * 2. Validate all required fields and check for password mismatch.
+ * 3. Look up the ShortUrl document using the provided `urlId`.
+ * 4. If `newPassword` is an empty string, remove password protection.
+ * 5. Otherwise, hash the new password and set protection flags.
+ * 6. Save the updated document.
+ * 7. Respond with a success message indicating the result (added/removed).
+ */
+export const updatePassword = asyncHandler(async (req, res) => {
+  const { urlId } = req.params;
+  let { newPassword, confirmPassword } = req.body;
+
+  if (newPassword === undefined || confirmPassword === undefined || !urlId) {
     res.status(400);
     throw new Error("All fields are required");
   }
+
+  // Trim both inputs
+  newPassword = newPassword.trim();
+  confirmPassword = confirmPassword.trim();
 
   if (newPassword !== confirmPassword) {
     res.status(400);
     throw new Error("Passwords do not match");
   }
 
-  if (!validator.isStrongPassword(newPassword)) {
-    res.status(400);
-    throw new Error("Please create a strong password");
-  }
-
   const urlData = await ShortUrl.findById(urlId);
-
   if (!urlData) {
     res.status(404);
     throw new Error("Invalid URL");
   }
 
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-  urlData.password = hashedPassword;
-  urlData.isPasswordProtected = true;
+  const isRemovingPassword = newPassword === "";
+
+  if (isRemovingPassword) {
+    urlData.password = undefined;
+    urlData.isPasswordProtected = false;
+  } else {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    urlData.password = hashedPassword;
+    urlData.isPasswordProtected = true;
+  }
 
   await urlData.save();
 
   res.status(200).json({
-    message: "Password updated successfully",
+    message: isRemovingPassword
+      ? "Password removed successfully"
+      : "Password updated successfully",
   });
 });
 
+
+
+/**
+ * @desc    Deletes a shortened URL by its ID.
+ *          If no URL with the provided ID is found, returns a 404 error.
+ * @route   DELETE /api/url/delete/:urlId
+ * @access  Private (Requires authenticated user)
+ *
+ * Steps:
+ * 1. Extract `urlId` from the request parameters.
+ * 2. Attempt to delete the ShortUrl document with the matching `_id`.
+ * 3. If no document is deleted (`deletedCount` is 0), respond with a 404 error.
+ * 4. If deletion succeeds, respond with a success message.
+ */
 export const deleteUrl = asyncHandler(async (req, res) => {
   const { urlId } = req.params;
 
@@ -166,6 +205,21 @@ export const deleteUrl = asyncHandler(async (req, res) => {
   });
 });
 
+
+/**
+ * @desc    Toggles the activation status (active/inactive) of a shortened URL by its ID.
+ *          Returns a 404 error if the URL with the given ID is not found.
+ * @route   PUT /api/url/changeActivationStatus/:urlId
+ * @access  Private (Requires authenticated user)
+ *
+ * Steps:
+ * 1. Extract `urlId` from the request parameters.
+ * 2. Find the ShortUrl document by its `_id`.
+ * 3. If no document is found, respond with a 404 error.
+ * 4. Toggle the `isActive` boolean flag.
+ * 5. Save the updated document.
+ * 6. Respond with a success message confirming the update.
+ */
 export const changeActivationStatus = asyncHandler(async (req, res) => {
   const { urlId } = req.params;
   const urlData = await ShortUrl.findById(urlId);
@@ -182,11 +236,30 @@ export const changeActivationStatus = asyncHandler(async (req, res) => {
   });
 });
 
+
+/**
+ * @desc    Updates the original URL and expiry date of a shortened URL by its ID.
+ *          Validates the new URL and expiry date before saving changes.
+ *          Prevents shortening URLs from the same service domain.
+ * @route   PUT /api/url/updateUrlAndExpiry/:urlId
+ * @access  Private (Requires authenticated user)
+ *
+ * Steps:
+ * 1. Extract `urlId` from request parameters and `newLongUrl`, `newExpiry` from request body.
+ * 2. Validate that both `newLongUrl` and `newExpiry` are provided.
+ * 3. Trim and validate the URL format using a validator.
+ * 4. Validate the expiry date is a valid date.
+ * 5. Check if the new URL is not from the service’s own domain to prevent self-shortening.
+ * 6. Find the ShortUrl document by ID.
+ * 7. If not found, respond with 404 error.
+ * 8. Update the original URL and expiry date fields.
+ * 9. Save the document.
+ * 10. Respond with a success message.
+ */
 export const updateUrlAndExpiry = asyncHandler(async (req, res) => {
   const { urlId } = req.params;
   const { newLongUrl, newExpiry } = req.body || {};
 
-  // Check if both fields are provided
   if (!newLongUrl || !newExpiry) {
     res.status(400);
     throw new Error("Please fill all the details");
@@ -194,13 +267,11 @@ export const updateUrlAndExpiry = asyncHandler(async (req, res) => {
 
   const trimmedUrl = validator.trim(newLongUrl);
 
-  // Validate the URL format
   if (!validator.isURL(trimmedUrl)) {
     res.status(400);
     throw new Error("Please enter a valid URL");
   }
 
-  // Validate the expiry date format
   const expiryDate = new Date(newExpiry);
   if (isNaN(expiryDate.getTime())) {
     res.status(400);
@@ -209,20 +280,17 @@ export const updateUrlAndExpiry = asyncHandler(async (req, res) => {
 
   const SHORT_URL_BASE = "https://minli.info";
 
-  // Prevent self-shortening
   if (trimmedUrl.startsWith(SHORT_URL_BASE)) {
     res.status(400);
     throw new Error("Cannot shorten a URL from this service.");
   }
 
-  // Find the short URL by ID
   const urlData = await ShortUrl.findById(urlId);
   if (!urlData) {
     res.status(404);
     throw new Error("Invalid URL ID");
   }
 
-  // Update the fields
   urlData.originalUrl = trimmedUrl;
   urlData.expiresAt = expiryDate;
   await urlData.save();
@@ -231,4 +299,3 @@ export const updateUrlAndExpiry = asyncHandler(async (req, res) => {
     message: "URL updated successfully",
   });
 });
-

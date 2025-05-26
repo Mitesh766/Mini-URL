@@ -6,22 +6,16 @@ import {
   Trash2,
   Eye,
   EyeOff,
-  Calendar,
   BarChart3,
   QrCode,
   Lock,
-  Unlock,
   Plus,
   Search,
-  Filter,
-  MoreHorizontal,
   ExternalLink,
   Shield,
   Clock,
   CheckCircle,
   XCircle,
-  Settings,
-  AlertTriangle,
   ArrowLeft
 } from 'lucide-react';
 import { useEffect } from 'react';
@@ -33,6 +27,12 @@ import LoadingOverlay from '../components/LoadingOverlay';
 import { downloadImage } from '../utils/downloadImage';
 import { Link } from "react-router-dom"
 import Notification from '../components/Notification.jsx';
+import validator from "validator"
+import DeleteConfirmationModal from '../components/Modals/DeleteConfirmationModal.jsx';
+import ToggleStatusModal from '../components/Modals/ToggleStatusModal.jsx';
+import EditUrlModal from '../components/Modals/EditUrlModal.jsx';
+import ChangePasswordModal from '../components/Modals/ChangePasswordModal.jsx';
+import QrCodeModal from '../components/Modals/QrCodeModal.jsx';
 
 const ManageUrls = () => {
   const dispatch = useDispatch();
@@ -58,8 +58,9 @@ const ManageUrls = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   const [showQrModal, setShowQrModal] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [confirmAction, setConfirmAction] = useState(null);
+
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [editForm, setEditForm] = useState({
     originalUrl: '',
     shortUrl: '',
@@ -68,7 +69,7 @@ const ManageUrls = () => {
     minDate: '',
     minTime: ''
   });
-  const [passwordForm, setPasswordForm] = useState({ password: '', confirmPassword: '' });
+  const [passwordForm, setPasswordForm] = useState({ password: ' ', confirmPassword: ' ' });
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -78,7 +79,7 @@ const ManageUrls = () => {
     const minDateTime = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour from now
     const minDate = minDateTime.toISOString().split('T')[0];
     const minTime = minDateTime.toTimeString().split(' ')[0].slice(0, 5);
-    console.log(minTime)
+
 
     setEditForm({
       originalUrl: url.originalUrl,
@@ -100,7 +101,11 @@ const ManageUrls = () => {
       alert('Expiry date and time must be at least 1 hour from now');
       return;
     }
-
+    if (!validator.isURL(editForm.originalUrl)) {
+      setShowEditModal(false)
+      setErrorMessage("Invalid URL")
+      return
+    }
     try {
       await axios.put(`${API_URL}/updateUrlAndExpiry/${selectedUrl._id}`, {
         newLongUrl: editForm.originalUrl,
@@ -135,80 +140,58 @@ const ManageUrls = () => {
     setShowPasswordModal(true);
   };
 
-  const showConfirmation = (action, url) => {
-    setSelectedUrl(url);
-    setConfirmAction(action);
-    setShowConfirmModal(true);
-  };
-
-  const executeConfirmedAction = async () => {
-    if (!confirmAction || !selectedUrl) return;
-
+  const makeApiCallToHandlePasswordChange = async () => {
     try {
-      if (confirmAction.type === 'toggle') {
-        // You'll need to implement the API call to toggle status
-        // For now, updating local state
-        try {
-
-          dispatch(setUrlData(urlData.map(url =>
-            url._id === selectedUrl._id
-              ? { ...url, isActive: !url.isActive }
-              : url
-          )));
-        }
-        catch (err) {
-          dispatch(setLoading(false));
-          setErrorMessage(err.response?.data?.message || err.message);
-        }
-      } else if (confirmAction.type === 'delete') {
-        // You'll need to implement the API call to delete
-        // For now, updating local state
-        dispatch(setUrlData(urlData.filter(url => url._id !== selectedUrl._id)));
+      if (passwordForm.password !== passwordForm.confirmPassword) {
+        setErrorMessage("Passwords do not match");
+        setShowPasswordModal(false)
+        return
       }
-    } catch (error) {
-      console.error('Error executing action:', error);
-      // Add error handling here
-    } finally {
-      setShowConfirmModal(false);
-      setConfirmAction(null);
-      setSelectedUrl(null);
+      const response = await axios.put(`${API_URL}/updatePassword/${selectedUrl._id}`, {
+        newPassword: passwordForm.password.trim() || "",
+        confirmPassword: passwordForm.confirmPassword.trim() || ""
+      }, {
+        withCredentials: true,
+      })
+      const updatedData = urlData.map((url) => {
+        if (url._id.toString() === selectedUrl._id.toString()) {
+          return {
+            ...url,
+            isPasswordProtected: passwordForm.password.trim() ? true : false
+          };
+        }
+        return url;
+      });
+
+      dispatch(setUrlData(updatedData));
+      setShowPasswordModal(false)
+      setSuccessMessage(response.data.message);
     }
-  };
+    catch (err) {
+      setShowPasswordModal(false)
+      setErrorMessage(err.response?.data?.message || err.message);
+    }
+  }
 
-  const handleToggleStatus = async (url) => {
-    const action = {
-      type: 'toggle',
-      message: url.isActive
-        ? 'Are you sure you want to disable this URL? It will no longer be accessible.'
-        : 'Are you sure you want to enable this URL? It will become accessible again.',
-      title: url.isActive ? 'Disable URL' : 'Enable URL',
-      confirmText: url.isActive ? 'Disable' : 'Enable',
-      confirmStyle: url.isActive ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'
-    };
-    showConfirmation(action, url);
-  };
+  const makeApiCallToDeleteLink = async () => {
+    try {
 
-  const handleDelete = async (url) => {
-    const action = {
-      type: 'delete',
-      message: 'Are you sure you want to delete this URL? This action cannot be undone.',
-      title: 'Delete URL',
-      confirmText: 'Delete',
-      confirmStyle: 'bg-red-600 hover:bg-red-700'
-    };
-    showConfirmation(action, url);
-  };
+      const response = await axios.delete(`${API_URL}/delete/${selectedUrl._id}`, {}, {
+        withCredentials: true,
+      })
 
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-    // Add toast notification here
-  };
+      const updatedData = urlData.filter((url) => url._id.toString() !== selectedUrl._id.toString());
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString();
-  };
+      dispatch(setUrlData(updatedData));
+      setShowDeleteModal(false)
+      setSuccessMessage(response.data.message);
+    }
+    catch (err) {
+      setShowDeleteModal(false)
+      setErrorMessage(err.response?.data?.message || err.message);
+    }
 
-
+  }
 
   const getShortUrlPath = (fullUrl) => {
     return fullUrl.replace('https://', '').replace('http://', '');
@@ -220,33 +203,37 @@ const ManageUrls = () => {
     return matchesSearch;
   });
 
-  const updatePassword = async () => {
-    // try {
-    //   dispatch(setLoading(true));
+  const makeApiCallToChangeStatus = async () => {
+    try {
+      const response = await axios.put(`${API_URL}/changeActivationStatus/${selectedUrl._id}`)
+      const updatedData = urlData.map((url) => {
+        if (url._id.toString() === selectedUrl._id.toString()) {
+          return {
+            ...url,
+            isActive: !url.isActive
+          };
+        }
+        return url;
+      });
 
-    //   const { data } = await axios.post(
-    //     `${USERS_URL}/register`,
-    //     formData,
-    //     { withCredentials: true }
-    //   );
-    //   const dataToStore = {
-    //     fullName: data?.fullName,
-    //     email: data?.email,
-    //     _id: data?._id
-    //   }
-    //   // dispatch(addUserData(dataToStore));
-    //   setTimeout(() => {
-    //     dispatch(setLoading(false));
-
-    //   }, 2000)
-    // } catch (err) {
-    //   setTimeout(() => {
-    //     dispatch(setLoading(false));
-    //     setErrorMessage(err.response?.data?.message || err.message);
-    //   }, 2000)
-    // }
+      dispatch(setUrlData(updatedData));
+      setShowStatusModal(false)
+      setSuccessMessage(response.data.message);
+    } catch (err) {
+      setShowStatusModal(false)
+      setErrorMessage(err.response?.data?.message || err.message);
+    }
   }
 
+  const handleUrlCopy = async (url) => {
+    try {
+      await navigator.clipboard.writeText(url.shortUrl);
+      setSuccessMessage("URL copied to clipboard");
+    } catch (err) {
+      console.error("Failed to copy:", err);
+      setErrorMessage("Failed to copy URL");
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">
@@ -344,7 +331,7 @@ const ManageUrls = () => {
                           {url.expiresAt && (
                             <span className="flex items-center space-x-1 px-2 py-1 bg-orange-500/20 text-orange-400 rounded-lg text-xs">
                               <Clock className="w-3 h-3" />
-                              <span className="hidden sm:inline">Expires {formatDate(url.expiresAt)}</span>
+                              <span className="hidden sm:inline">Expires {new Date(url.expiresAt).toLocaleString()}</span>
                               <span className="sm:hidden">Expires</span>
                             </span>
                           )}
@@ -365,7 +352,7 @@ const ManageUrls = () => {
                           <div className="flex items-center space-x-2 min-w-0">
                             <span className="text-purple-400 font-mono text-sm break-all">{getShortUrlPath(url.shortUrl)}</span>
                             <button
-                              onClick={() => copyToClipboard(url.shortUrl)}
+                              onClick={async () => await handleUrlCopy(url)}
                               className="p-1 hover:bg-white/10 rounded transition-colors duration-200 flex-shrink-0"
                             >
                               <Copy className="w-4 h-4 text-gray-400 hover:text-white" />
@@ -394,7 +381,7 @@ const ManageUrls = () => {
                           <BarChart3 className="w-4 h-4" />
                           <span>{url.clickCount} clicks</span>
                         </span>
-                        <span className="inline">Created {formatDate(url.createdAt)}</span>
+                        <span className="inline">Created {new Date(url.createdAt).toLocaleString()}</span>
 
 
                       </div>
@@ -451,7 +438,10 @@ const ManageUrls = () => {
 
                       {/* Activation Status Button*/}
                       <button
-                        onClick={() => handleToggleStatus(url)}
+                        onClick={() => {
+                          setSelectedUrl(url)
+                          setShowStatusModal(true)
+                        }}
                         className={`p-2 rounded-lg transition-all duration-200 ${url.isActive
                           ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
                           : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
@@ -464,7 +454,10 @@ const ManageUrls = () => {
 
                       {/* Delete Button */}
                       <button
-                        onClick={() => handleDelete(url)}
+                        onClick={() => {
+                          setShowDeleteModal(true)
+                          setSelectedUrl(url)
+                        }}
                         className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all duration-200"
                         title="Delete"
                       >
@@ -490,172 +483,53 @@ const ManageUrls = () => {
       </div>
 
       {/* Confirmation Modal */}
-      {showConfirmModal && confirmAction && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-4 sm:p-6 w-full max-w-md">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="bg-orange-500/20 rounded-full p-2">
-                <AlertTriangle className="w-6 h-6 text-orange-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-white">{confirmAction.title}</h3>
-            </div>
-            <p className="text-gray-300 mb-6">{confirmAction.message}</p>
-            <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-              <button
-                onClick={() => {
-                  setShowConfirmModal(false);
-                  setConfirmAction(null);
-                  setSelectedUrl(null);
-                }}
-                className="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition-all duration-300"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={executeConfirmedAction}
-                className={`flex-1 px-4 py-2 rounded-xl text-white transition-all duration-300 ${confirmAction.confirmStyle || 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'}`}
-              >
-                {confirmAction.confirmText}
-              </button>
-            </div>
-          </div>
-        </div>
+
+      {showStatusModal && (
+        <ToggleStatusModal
+          isActive={selectedUrl?.isActive}
+          onCancel={() => {
+            setShowStatusModal(false);
+            setSelectedUrl(null);
+          }}
+          onConfirm={makeApiCallToChangeStatus}
+        />
+      )}
+
+      {showDeleteModal && (
+        <DeleteConfirmationModal
+          onCancel={() => {
+            setShowDeleteModal(false)
+            setSelectedUrl(null)
+          }}
+          onConfirm={makeApiCallToDeleteLink}
+        />
       )}
 
       {/* Edit Modal */}
-      {showEditModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-semibold text-white mb-4">Edit URL</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Original URL</label>
-                <input
-                  type="url"
-                  value={editForm.originalUrl}
-                  onChange={(e) => setEditForm({ ...editForm, originalUrl: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Expiry Date
-                  <span className="text-xs text-gray-400 ml-1">(Must be at least 1 hour from now)</span>
-                </label>
-                <input
-                  type="date"
-                  value={editForm.expiresAt}
-                  min={editForm.minDate}
-                  onChange={(e) => setEditForm({ ...editForm, expiresAt: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Expiry Time</label>
-                <input
-                  type="time"
-                  value={editForm.expiresTime}
-                  onChange={(e) => setEditForm({ ...editForm, expiresTime: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-            </div>
-            <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
-              <button
-                onClick={() => setShowEditModal(false)}
-                className="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition-all duration-300"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={makeApiCallToSaveEditChanges}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
-              >
-                Save Changes
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <EditUrlModal
+        show={showEditModal}
+        formData={editForm}
+        setFormData={setEditForm}
+        onCancel={() => setShowEditModal(false)}
+        onSave={makeApiCallToSaveEditChanges}
+      />
 
       {/* Password Modal */}
-      {showPasswordModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-4 sm:p-6 w-full max-w-md">
-            <h3 className="text-xl font-semibold text-white mb-4">Change Password</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">New Password</label>
-                <input
-                  type="password"
-                  value={passwordForm.password}
-                  onChange={(e) => setPasswordForm({ ...passwordForm, password: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Confirm Password</label>
-                <input
-                  type="password"
-                  value={passwordForm.confirmPassword}
-                  onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-            </div>
-            <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
-              <button
-                onClick={() => setShowPasswordModal(false)}
-                className="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition-all duration-300"
-              >
-                Cancel
-              </button>
-              <button onClick={() => updatePassword()} className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white hover:from-purple-700 hover:to-pink-700 transition-all duration-300">
-                Update Password
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ChangePasswordModal
+        show={showPasswordModal}
+        formData={passwordForm}
+        setFormData={setPasswordForm}
+        onCancel={() => setShowPasswordModal(false)}
+        onUpdate={makeApiCallToHandlePasswordChange}
+      />
 
       {/* QR Code Modal */}
-      {showQrModal && selectedUrl && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-4 sm:p-6 w-full max-w-md text-center">
-            <h3 className="text-xl font-semibold text-white mb-4">QR Code</h3>
-            <div className="bg-white rounded-xl p-4 mb-4 inline-block">
-              {selectedUrl.qrUrl ? (
-                <img
-                  src={selectedUrl.qrUrl}
-                  alt="QR Code"
-                  className="w-40 h-40 sm:w-48 sm:h-48 object-contain"
-                />
-              ) : (
-                <div className="w-40 h-40 sm:w-48 sm:h-48 bg-gray-200 rounded flex items-center justify-center">
-                  <QrCode className="w-20 h-20 sm:w-24 sm:h-24 text-gray-400" />
-                </div>
-              )}
-            </div>
-            <p className="text-gray-400 text-sm mb-4">Scan to access your short URL</p>
-            <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-              <button
-                onClick={() => setShowQrModal(false)}
-                className="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition-all duration-300"
-              >
-                Close
-              </button>
-              {selectedUrl.qrUrl && (
-                <button
-                  onClick={() => downloadImage(selectedUrl.qrUrl, 'url.png')}
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
-                >
-                  Download
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <QrCodeModal
+        show={showQrModal}
+        selectedUrl={selectedUrl}
+        onClose={() => setShowQrModal(false)}
+        onDownload={downloadImage}
+      />
     </div>
   );
 };

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as LinkIcon, ExternalLink, BarChart3, Zap, Shield, Globe } from 'lucide-react';
 import { Link } from "react-router-dom"
 const LandingPage = () => {

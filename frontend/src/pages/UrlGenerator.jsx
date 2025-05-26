@@ -12,7 +12,6 @@ import {
     Eye,
     EyeOff,
     Check,
-    X,
     ExternalLink,
     Download,
     ArrowLeft,
@@ -109,7 +108,7 @@ const UrlGenerator = () => {
             const { data } = await axios.post(`${API_URL}/shortenUrl`, formData, {
                 withCredentials: true
             })
-            console.log(data)
+          
 
             const { originalUrl, qrUrl, shortUrl } = data.newUrl;
 

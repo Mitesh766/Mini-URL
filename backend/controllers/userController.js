@@ -25,7 +25,7 @@ export const register = asyncHandler(async (req, res) => {
   }
   const { fullName, email, password, confirmPassword } = req.body;
 
-  if (!fullName || !email || !password) {
+  if (!fullName || !email || !password.trim()) {
     res.status(400);
     throw new Error("Please fill all the details");
   }
@@ -56,7 +56,7 @@ export const register = asyncHandler(async (req, res) => {
     throw new Error("User already exists");
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(password.trim(), 10);
   const user = new User({
     fullName,
     email,
@@ -122,7 +122,7 @@ export const login = asyncHandler(async (req, res) => {
     throw new Error("Invalid user");
   }
 
-  const isUserValid = await bcrypt.compare(password, user.password);
+  const isUserValid = await bcrypt.compare(password.trim(), user.password);
   if (!isUserValid) {
     res.status(401);
     throw new Error("Invalid credentials");

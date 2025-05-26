@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { Link, Mail, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import validator from "validator"
 import Notification from '../components/Notification';
@@ -17,7 +17,6 @@ const Login = () => {
     const [errorMessage, setErrorMessage] = useState("")
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    const userData = useSelector(store => store.user.user);
     const isLoading = useSelector(store => store.user.isLoading);
     const [formData, setFormData] = useState({
         fullName: '',
