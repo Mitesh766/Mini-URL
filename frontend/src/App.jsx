@@ -18,7 +18,7 @@ const App = () => {
       <Route path="/generate" element={<UrlGenerator />} />
       <Route path="/manage" element={<ManageUrls />} />
       <Route path="/report" element={<ReportIssue />} />
-      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/dashboard/:urlId" element={<Dashboard />} />
       <Route path="*" element={<PageNotFound />} />
       <Route path="/:shortCode" element={<UrlRedirect />} />
     </Routes>

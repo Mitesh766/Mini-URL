@@ -4,6 +4,7 @@ import { handleExpireTime } from "../utils/expiryDateGenerator.js";
 import bcrypt from "bcrypt";
 import { generateAndUploadQR } from "../utils/generateAndUploadQr.js";
 import ShortUrl from "../models/ShortUrlModel.js";
+import validator from "validator";
 
 import { generateUniqueShortCode } from "../utils/generateShortCode.js";
 
@@ -41,7 +42,7 @@ export const shortenUrl = asyncHandler(async (req, res, next) => {
     (aliasType === "custom" && !customAlias) ||
     !expirationTime ||
     (isPasswordProtected && !password) ||
-    (!title)
+    !title
   ) {
     res.status(400);
     throw new Error("Please fill all the required details.");
@@ -106,5 +107,72 @@ export const getAllUrls = asyncHandler(async (req, res) => {
   res.status(200).json({
     message: "URLs fetched successfully",
     urls,
+  });
+});
+
+export const updatePassword = asyncHandler(async (req, res) => {
+  const { newPassword, confirmPassword, urlId } = req.body;
+
+  if (!newPassword || !confirmPassword || !urlId) {
+    res.status(400);
+    throw new Error("All fields are required");
+  }
+
+  if (newPassword !== confirmPassword) {
+    res.status(400);
+    throw new Error("Passwords do not match");
+  }
+
+  if (!validator.isStrongPassword(newPassword)) {
+    res.status(400);
+    throw new Error("Please create a strong password");
+  }
+
+  const urlData = await ShortUrl.findById(urlId);
+
+  if (!urlData) {
+    res.status(404);
+    throw new Error("Invalid URL");
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  urlData.password = hashedPassword;
+  urlData.isPasswordProtected = true;
+
+  await urlData.save();
+
+  res.status(200).json({
+    message: "Password updated successfully",
+  });
+});
+
+export const deleteUrl = asyncHandler(async (req, res) => {
+  const { urlId } = req.params;
+
+  const urlData = await ShortUrl.deleteOne({ _id: urlId });
+
+  if (urlData.deletedCount === 0) {
+    res.status(404);
+    throw new Error("No URL found with the provided ID");
+  }
+
+  res.status(200).json({
+    message: "URL deleted successfully",
+  });
+});
+
+export const changeActivationStatus = asyncHandler(async (req, res) => {
+  const { urlId } = req.params;
+  const urlData = await ShortUrl.findById(urlId);
+  if (!urlData) {
+    res.status(404);
+    throw new Error("Invalid url Id");
+  }
+
+  urlData.isActive = !urlData.isActive;
+  await urlData.save();
+
+  res.status(200).json({
+    message: "Activation status updated successfully",
   });
 });

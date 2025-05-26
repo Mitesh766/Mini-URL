@@ -44,7 +44,14 @@ const UrlGenerator = () => {
     const [showQRCode, setShowQRCode] = useState(false);
     const [copied, setCopied] = useState(false);
 
-
+    const expirationOptions = [
+        { value: '6h', label: '6 Hours', icon: Clock },
+        { value: '12h', label: '12 Hours', icon: Clock },
+        { value: '24h', label: '24 Hours', icon: Clock },
+        { value: '7d', label: '7 Days', icon: Calendar },
+        { value: '30d', label: '30 Days', icon: Calendar },
+        { value: '90d', label: '90 Days', icon: Calendar }
+    ];
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -126,7 +133,6 @@ const UrlGenerator = () => {
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);
             } catch (err) {
-
                 console.error('Copy failed:', err);
             }
         }
