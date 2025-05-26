@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-    Link,
+    Link as LinkIcon,
     Copy,
     QrCode,
     Settings,
@@ -19,12 +19,16 @@ import {
     Clock
 } from 'lucide-react';
 import Notification from '../components/Notification';
+import { API_URL } from '../utils/constants';
+import axios from 'axios';
+import { downloadImage } from '../utils/downloadImage';
+import { Link } from 'react-router-dom';
 
 const UrlGenerator = () => {
     const [formData, setFormData] = useState({
         originalUrl: '',
         customAlias: '',
-        aliasType: 'random', // 'random' or 'custom'
+        aliasType: 'random',
         expirationTime: '24h',
         isPasswordProtected: false,
         password: '',
@@ -66,19 +70,9 @@ const UrlGenerator = () => {
         }));
     };
 
-    const generateRandomAlias = () => {
-        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let result = '';
-        for (let i = 0; i < 6; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return result;
-    };
 
-    const generateQRCode = (url) => {
-        // Simple QR code placeholder - in real implementation, use a QR library
-        return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
-    };
+
+
 
     const handleGenerate = async () => {
         // Basic validation
@@ -87,8 +81,8 @@ const UrlGenerator = () => {
             return;
         }
 
-        if (!formData.originalUrl.startsWith('http://') && !formData.originalUrl.startsWith('https://')) {
-            setError('Please enter a valid URL starting with http:// or https://');
+        if (!formData.originalUrl.startsWith('https://')) {
+            setError('Please enter a valid URL starting with  https://');
             return;
         }
 
@@ -106,34 +100,22 @@ const UrlGenerator = () => {
         setError('');
 
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 2000));
 
-            // Simulate random success/error for demo
-            const isSuccess = Math.random() > 0.3;
+            const { data } = await axios.post(`${API_URL}/shortenUrl`, formData, {
+                withCredentials: true
+            })
+            console.log(data)
 
-            if (isSuccess) {
-                const alias = formData.aliasType === 'custom' ? formData.customAlias : generateRandomAlias();
-                const shortUrl = `https://slink.io/${alias}`;
+            const { originalUrl, qrUrl, shortUrl } = data.newUrl;
 
-                setResult({
-                    originalUrl: formData.originalUrl,
-                    shortUrl: shortUrl,
-                    alias: alias,
-                    clicks: 0,
-                    createdAt: new Date().toISOString()
-                });
-            } else {
-                // Simulate different error types
-                const errorTypes = [
-                    'This alias is already taken. Please try another one.',
-                    'Something went wrong. Please try again.',
-                    'Invalid URL format. Please check your input.'
-                ];
-                setError(errorTypes[Math.floor(Math.random() * errorTypes.length)]);
-            }
+            setResult({
+                originalUrl,
+                shortUrl,
+                qrUrl
+            });
+
         } catch (err) {
-            setError('Network error. Please check your connection and try again.');
+            setError(err.response?.data?.message || err.message);
         } finally {
             setIsGenerating(false);
         }
@@ -146,7 +128,7 @@ const UrlGenerator = () => {
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);
             } catch (err) {
-                // Fallback for older browsers
+
                 console.error('Copy failed:', err);
             }
         }
@@ -171,29 +153,147 @@ const UrlGenerator = () => {
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white relative">
             <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 animate-fade-in-up space-y-4 sm:space-y-0">
+                <div className="flex flex-row   items-center justify-between mb-8 animate-fade-in-up space-y-0">
                     <div className="flex items-center space-x-3 sm:space-x-4">
+                        <Link to="/">
                         <button className="p-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 flex-shrink-0">
                             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>
+                        </Link>
                         <div className="min-w-0">
-                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                            <h1 className="text-md sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                                 Generate Short URL
                             </h1>
-                            <p className="text-gray-400 mt-1 text-sm sm:text-base">Create your shortened link with custom options</p>
+                            <p className="text-gray-400 hidden sm:block mt-1 text-sm sm:text-base">Create your shortened link with custom options</p>
                         </div>
                     </div>
                     <div className="flex items-center space-x-2 flex-shrink-0">
                         <div className="bg-gradient-to-r from-purple-400 to-pink-400 p-2 rounded-lg">
-                            <Link className="w-5 h-5 sm:w-6 sm:h-6" />
+                            <LinkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                         </div>
                         <span className="text-lg sm:text-2xl font-bold">Slink</span>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
+
+                    {/* Result Section */}
+                    <div className="space-y-6  order-1 xl:order-2">
+                        {result ? (
+                            <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-4 sm:p-6 animate-fade-in-up">
+                                <div className="flex items-start sm:items-center justify-between mb-4">
+                                    <h2 className="text-lg sm:text-xl font-semibold flex items-start sm:items-center space-x-2">
+                                        <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 flex-shrink-0 mt-0.5 sm:mt-0" />
+                                        <span className="leading-tight">URL Generated Successfully!</span>
+                                    </h2>
+                                </div>
+
+                                {/* Short URL Display */}
+                                <div className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-4 mb-4">
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                                        Your Short URL
+                                    </label>
+                                    <div className="flex flex-row sm:flex-row items-center  space-y-0 space-x-2">
+                                        <div className="flex-1 px-3 py-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 rounded-lg min-w-0">
+                                            <a
+                                                href={result.shortUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-purple-300 hover:text-purple-200 transition-colors duration-200 break-all text-sm sm:text-base"
+                                            >
+                                                {result.shortUrl}
+                                            </a>
+                                        </div>
+                                        <button
+                                            onClick={handleCopy}
+                                            className={`p-2 rounded-lg transition-all duration-300 flex-shrink-0 ${copied
+                                                ? 'bg-green-600 text-white'
+                                                : 'bg-white/10 hover:bg-white/20 text-gray-300'
+                                                }`}
+                                        >
+                                            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Original URL */}
+                                <div className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-4 mb-6">
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                                        Original URL
+                                    </label>
+                                    <div className="text-gray-400 text-sm break-all">
+                                        {result.originalUrl}
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+                                    <button
+                                        onClick={() => setShowQRCode(!showQRCode)}
+                                        className="flex items-center justify-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all duration-300 text-sm"
+                                    >
+                                        <QrCode className="w-4 h-4 flex-shrink-0" />
+                                        <span>QR Code</span>
+                                    </button>
+
+                                    <button className="flex items-center justify-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all duration-300 text-sm">
+                                        <ExternalLink className="w-4 h-4 flex-shrink-0" />
+                                        <span>Manage URLs</span>
+                                    </button>
+
+                                    <button
+                                        onClick={handleReset}
+                                        className="flex items-center justify-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 text-sm"
+                                    >
+                                        <RefreshCw className="w-4 h-4 flex-shrink-0" />
+                                        <span>New URL</span>
+                                    </button>
+                                </div>
+
+                                {/* QR Code Modal */}
+                                {showQRCode && (
+                                    <div className="mt-6 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-xl animate-fade-in">
+                                        <div className="text-center">
+                                            <h3 className="text-base sm:text-lg font-semibold mb-4">QR Code</h3>
+                                            <div className="bg-white p-2 sm:p-4 rounded-lg inline-block mb-4">
+                                                <img
+                                                    src={result.qrUrl}
+                                                    alt="QR Code"
+                                                    className="w-32 h-32 sm:w-48 sm:h-48"
+                                                />
+                                            </div>
+                                            <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-3">
+                                                <button className="flex items-center justify-center space-x-2 px-4 py-2 bg-white/10 border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-sm" onClick={() => downloadImage(result.qrUrl, 'url.png')}>
+                                                    <Download className="w-4 h-4" />
+                                                    <span>Download PNG</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => setShowQRCode(false)}
+                                                    className="px-4 py-2 bg-red-600/20 border border-red-500/30 rounded-lg hover:bg-red-600/30 transition-all duration-300 text-sm"
+                                                >
+                                                    Close
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 sm:p-8 text-center animate-fade-in-up animation-delay-400">
+                                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <LinkIcon className="w-6 h-6 sm:w-8 sm:h-8" />
+                                </div>
+                                <h3 className="text-lg sm:text-xl font-semibold mb-2">Ready to Generate</h3>
+                                <p className="text-gray-400 text-sm sm:text-base">
+                                    Enter your URL details and click generate to create your shortened link
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
+
                     {/* Form Section */}
-                    <div className="space-y-6 order-1">
+                    <div className="space-y-6 order-2 xl:order-1">
                         {/* Main Form */}
                         <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-4 sm:p-6 animate-fade-in-up animation-delay-200">
                             <h2 className="text-lg sm:text-xl font-semibold mb-4 flex items-center space-x-2">
@@ -292,11 +392,10 @@ const UrlGenerator = () => {
                                                         key={option.value}
                                                         type="button"
                                                         onClick={() => handleExpirationChange(option.value)}
-                                                        className={`p-2.5 sm:p-3 rounded-lg border transition-all duration-300 text-center ${
-                                                            formData.expirationTime === option.value
-                                                                ? 'bg-purple-600/50 border-purple-500 text-white shadow-lg shadow-purple-500/25'
-                                                                : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:border-white/20'
-                                                        }`}
+                                                        className={`p-2.5 sm:p-3 rounded-lg border transition-all duration-300 text-center ${formData.expirationTime === option.value
+                                                            ? 'bg-purple-600/50 border-purple-500 text-white shadow-lg shadow-purple-500/25'
+                                                            : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:border-white/20'
+                                                            }`}
                                                     >
                                                         <IconComponent className="w-4 h-4 mx-auto mb-1" />
                                                         <div className="text-xs sm:text-sm font-medium leading-tight">
@@ -364,7 +463,7 @@ const UrlGenerator = () => {
 
                             {/* Error Display */}
                             {error && (
-                              <Notification message={error} messageType='error' onClose={()=>setError('')}/>
+                                <Notification message={error} messageType='error' onClose={() => setError('')} />
                             )}
 
                             {/* Generate Button */}
@@ -385,119 +484,7 @@ const UrlGenerator = () => {
                         </div>
                     </div>
 
-                    {/* Result Section */}
-                    <div className="space-y-6 order-2">
-                        {result ? (
-                            <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-4 sm:p-6 animate-fade-in-up">
-                                <div className="flex items-start sm:items-center justify-between mb-4">
-                                    <h2 className="text-lg sm:text-xl font-semibold flex items-start sm:items-center space-x-2">
-                                        <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 flex-shrink-0 mt-0.5 sm:mt-0" />
-                                        <span className="leading-tight">URL Generated Successfully!</span>
-                                    </h2>
-                                </div>
 
-                                {/* Short URL Display */}
-                                <div className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-4 mb-4">
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                                        Your Short URL
-                                    </label>
-                                    <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
-                                        <div className="flex-1 px-3 py-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 rounded-lg min-w-0">
-                                            <a
-                                                href={result.shortUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-purple-300 hover:text-purple-200 transition-colors duration-200 break-all text-sm sm:text-base"
-                                            >
-                                                {result.shortUrl}
-                                            </a>
-                                        </div>
-                                        <button
-                                            onClick={handleCopy}
-                                            className={`p-2 rounded-lg transition-all duration-300 flex-shrink-0 ${copied
-                                                ? 'bg-green-600 text-white'
-                                                : 'bg-white/10 hover:bg-white/20 text-gray-300'
-                                                }`}
-                                        >
-                                            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* Original URL */}
-                                <div className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-4 mb-6">
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                                        Original URL
-                                    </label>
-                                    <div className="text-gray-400 text-sm break-all">
-                                        {result.originalUrl}
-                                    </div>
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
-                                    <button
-                                        onClick={() => setShowQRCode(!showQRCode)}
-                                        className="flex items-center justify-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all duration-300 text-sm"
-                                    >
-                                        <QrCode className="w-4 h-4 flex-shrink-0" />
-                                        <span>QR Code</span>
-                                    </button>
-
-                                    <button className="flex items-center justify-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all duration-300 text-sm">
-                                        <ExternalLink className="w-4 h-4 flex-shrink-0" />
-                                        <span>Manage URLs</span>
-                                    </button>
-
-                                    <button
-                                        onClick={handleReset}
-                                        className="flex items-center justify-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 text-sm"
-                                    >
-                                        <RefreshCw className="w-4 h-4 flex-shrink-0" />
-                                        <span>New URL</span>
-                                    </button>
-                                </div>
-
-                                {/* QR Code Modal */}
-                                {showQRCode && (
-                                    <div className="mt-6 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-xl animate-fade-in">
-                                        <div className="text-center">
-                                            <h3 className="text-base sm:text-lg font-semibold mb-4">QR Code</h3>
-                                            <div className="bg-white p-2 sm:p-4 rounded-lg inline-block mb-4">
-                                                <img
-                                                    src={generateQRCode(result.shortUrl)}
-                                                    alt="QR Code"
-                                                    className="w-32 h-32 sm:w-48 sm:h-48"
-                                                />
-                                            </div>
-                                            <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-3">
-                                                <button className="flex items-center justify-center space-x-2 px-4 py-2 bg-white/10 border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-sm">
-                                                    <Download className="w-4 h-4" />
-                                                    <span>Download PNG</span>
-                                                </button>
-                                                <button
-                                                    onClick={() => setShowQRCode(false)}
-                                                    className="px-4 py-2 bg-red-600/20 border border-red-500/30 rounded-lg hover:bg-red-600/30 transition-all duration-300 text-sm"
-                                                >
-                                                    Close
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 sm:p-8 text-center animate-fade-in-up animation-delay-400">
-                                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <Link className="w-6 h-6 sm:w-8 sm:h-8" />
-                                </div>
-                                <h3 className="text-lg sm:text-xl font-semibold mb-2">Ready to Generate</h3>
-                                <p className="text-gray-400 text-sm sm:text-base">
-                                    Enter your URL details and click generate to create your shortened link
-                                </p>
-                            </div>
-                        )}
-                    </div>
                 </div>
             </div>
         </div>

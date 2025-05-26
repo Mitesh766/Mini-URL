@@ -8,6 +8,7 @@ import ManageUrls from './pages/ManageUrls';
 import ReportIssue from './pages/ReportIssue';
 import Dashboard from './pages/Dashboard';
 import PageNotFound from './pages/PageNotFound';
+import UrlRedirect from './pages/UrlRedirect';
 
 const App = () => {
   return (
@@ -19,7 +20,7 @@ const App = () => {
       <Route path="/report" element={<ReportIssue />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="*" element={<PageNotFound />} />
-      <Route path="/:shortCode" element={<RedirectHandler />} />
+      <Route path="/:shortCode" element={<UrlRedirect />} />
     </Routes>
   );
 };

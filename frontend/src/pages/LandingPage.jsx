@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link, ExternalLink, BarChart3, Zap, Shield, Globe } from 'lucide-react';
-
+import { Link as LinkIcon, ExternalLink, BarChart3, Zap, Shield, Globe } from 'lucide-react';
+import { Link } from "react-router-dom"
 const LandingPage = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative text-white">
@@ -19,7 +19,7 @@ const LandingPage = () => {
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                     <div className="flex items-center space-x-2">
                         <div className="bg-gradient-to-r from-purple-400 to-pink-400 p-2 rounded-lg">
-                            <Link className="w-6 h-6" />
+                            <LinkIcon className="w-6 h-6" />
                         </div>
                         <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                             Minli
@@ -54,7 +54,9 @@ const LandingPage = () => {
                         <button className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full font-semibold text-lg hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 w-full sm:w-auto">
                             <div className="flex items-center justify-center space-x-2 relative z-10">
                                 <Zap className="w-5 h-5 group-hover:animate-pulse" />
-                                <span>Generate URL</span>
+                                <Link to="/generate">
+                                    <span>Generate URL</span>
+                                </Link>
                             </div>
                             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 blur transition-opacity duration-300 z-0"></div>
                         </button>
@@ -63,16 +65,22 @@ const LandingPage = () => {
                         <button className="group px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full font-semibold text-lg hover:bg-white/20 transform hover:scale-105 transition-all duration-300 shadow-lg w-full sm:w-auto">
                             <div className="flex items-center justify-center space-x-2">
                                 <ExternalLink className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
-                                <span>Manage URLs</span>
+                                <Link to="/manage">
+
+                                    <span>Manage URLs</span>
+                                </Link>
                             </div>
                         </button>
 
                         <button className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 w-full sm:w-auto">
-              <div className="flex items-center justify-center space-x-2">
-                <BarChart3 className="w-5 h-5 group-hover:animate-bounce" />
-                <span>Dashboard</span>
-              </div>
-            </button>
+                            <div className="flex items-center justify-center space-x-2">
+                                <BarChart3 className="w-5 h-5 group-hover:animate-bounce" />
+                                <Link to="/dashboard">
+
+                                    <span>Dashboard</span>
+                                </Link>
+                            </div>
+                        </button>
                     </div>
 
                     {/* Features Grid */}
