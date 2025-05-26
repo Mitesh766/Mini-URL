@@ -76,4 +76,34 @@ export const shortenUrl = asyncHandler(async (req, res, next) => {
   });
 });
 
-export const getUrl = asyncHandler((req, res, next) => {});
+
+
+/**
+ * @desc    Retrieves all shortened URLs created by the authenticated user.
+ *          Returns metadata for each URL, including status, protection, and usage details.
+ * @route   GET /api/url/getAllUrls
+ * @access  Private (Requires authenticated user)
+ *
+ * Steps:
+ * 1. Ensure the request is authenticated and contains a valid user object.
+ * 2. Query the database to find all ShortUrl documents associated with the user's ID.
+ * 3. Select specific fields to return only relevant URL metadata.
+ * 4. Optionally convert documents to plain objects for performance (if using .lean()).
+ * 5. Respond with a success message and the list of URLs created by the user.
+ */
+
+export const getAllUrls = asyncHandler(async (req, res) => {
+  if (!req.user || !req.user._id) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const urls = await ShortUrl.find({ userId: req.user._id })
+    .select("_id originalUrl shortUrl isPasswordProtected expiresAt isActive isOneTime hasBeenUsed qrUrl createdAt clickCount")
+    .lean();
+
+  res.status(200).json({
+    message: "URLs fetched successfully",
+    urls,
+  });
+});
+
