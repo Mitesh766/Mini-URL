@@ -32,6 +32,7 @@ import { setLoading, setUrlData } from '../redux/urlSlice.js';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { downloadImage } from '../utils/downloadImage';
 import { Link } from "react-router-dom"
+import Notification from '../components/Notification.jsx';
 
 const ManageUrls = () => {
   const dispatch = useDispatch();
@@ -59,19 +60,73 @@ const ManageUrls = () => {
   const [showQrModal, setShowQrModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
-  const [editForm, setEditForm] = useState({});
+  const [editForm, setEditForm] = useState({
+    originalUrl: '',
+    shortUrl: '',
+    expiresAt: '',
+    expiresTime: '',
+    minDate: '',
+    minTime: ''
+  });
   const [passwordForm, setPasswordForm] = useState({ password: '', confirmPassword: '' });
+  const [errorMessage, setErrorMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleEdit = (url) => {
     setSelectedUrl(url);
-    const createdDate = new Date(url.createdAt).toISOString().split('T')[0];
+    const now = new Date();
+    const minDateTime = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour from now
+    const minDate = minDateTime.toISOString().split('T')[0];
+    const minTime = minDateTime.toTimeString().split(' ')[0].slice(0, 5);
+    console.log(minTime)
+
     setEditForm({
       originalUrl: url.originalUrl,
       shortUrl: url.shortUrl,
-      expiresAt: url.expiresAt ? url.expiresAt.split('T')[0] : '',
-      minDate: createdDate
+      expiresAt: url.expiresAt ? url.expiresAt.split('T')[0] : minDate,
+      expiresTime: url.expiresAt ? url.expiresAt.split('T')[1].substring(0, 5) : minTime,
+      minDate: minDate,
+      minTime: minTime
     });
     setShowEditModal(true);
+  };
+
+  const makeApiCallToSaveEditChanges = async () => {
+    const selectedDateTime = new Date(`${editForm.expiresAt}T${editForm.expiresTime}`);
+    const now = new Date();
+    const minDateTime = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour from now
+
+    if (selectedDateTime < minDateTime) {
+      alert('Expiry date and time must be at least 1 hour from now');
+      return;
+    }
+
+    try {
+      await axios.put(`${API_URL}/updateUrlAndExpiry/${selectedUrl._id}`, {
+        newLongUrl: editForm.originalUrl,
+        newExpiry: selectedDateTime
+      }, {
+        withCredentials: true
+      });
+
+
+      const updatedData = urlData.map((url) => {
+        if (url._id.toString() === selectedUrl._id.toString()) {
+          return {
+            ...url,
+            originalUrl: editForm.originalUrl,
+            expiresAt: selectedDateTime.toISOString() // convert Date to string
+          };
+        }
+        return url;
+      });
+
+      dispatch(setUrlData(updatedData));
+      setShowEditModal(false);
+      setSuccessMessage("Update Successfull")
+    } catch (err) {
+      setErrorMessage(err.response?.data?.message || err.message);
+    }
   };
 
   const handlePasswordChange = (url) => {
@@ -93,11 +148,18 @@ const ManageUrls = () => {
       if (confirmAction.type === 'toggle') {
         // You'll need to implement the API call to toggle status
         // For now, updating local state
-        dispatch(setUrlData(urlData.map(url =>
-          url._id === selectedUrl._id
-            ? { ...url, isActive: !url.isActive }
-            : url
-        )));
+        try {
+
+          dispatch(setUrlData(urlData.map(url =>
+            url._id === selectedUrl._id
+              ? { ...url, isActive: !url.isActive }
+              : url
+          )));
+        }
+        catch (err) {
+          dispatch(setLoading(false));
+          setErrorMessage(err.response?.data?.message || err.message);
+        }
       } else if (confirmAction.type === 'delete') {
         // You'll need to implement the API call to delete
         // For now, updating local state
@@ -142,11 +204,11 @@ const ManageUrls = () => {
     // Add toast notification here
   };
 
- const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleString();
-};
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleString();
+  };
 
- 
+
 
   const getShortUrlPath = (fullUrl) => {
     return fullUrl.replace('https://', '').replace('http://', '');
@@ -158,10 +220,39 @@ const ManageUrls = () => {
     return matchesSearch;
   });
 
+  const updatePassword = async () => {
+    // try {
+    //   dispatch(setLoading(true));
+
+    //   const { data } = await axios.post(
+    //     `${USERS_URL}/register`,
+    //     formData,
+    //     { withCredentials: true }
+    //   );
+    //   const dataToStore = {
+    //     fullName: data?.fullName,
+    //     email: data?.email,
+    //     _id: data?._id
+    //   }
+    //   // dispatch(addUserData(dataToStore));
+    //   setTimeout(() => {
+    //     dispatch(setLoading(false));
+
+    //   }, 2000)
+    // } catch (err) {
+    //   setTimeout(() => {
+    //     dispatch(setLoading(false));
+    //     setErrorMessage(err.response?.data?.message || err.message);
+    //   }, 2000)
+    // }
+  }
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">
       {isLoading ? <LoadingOverlay isLoading={isLoading} message={"Please wait while getting logged in ."} /> : ""}
-
+      {errorMessage && <Notification messageType="error" message={errorMessage} onClose={() => setErrorMessage('')} />}
+      {successMessage && <Notification messageType="success" message={successMessage} onClose={() => setSuccessMessage('')} />}
       <div>
         <div className="relative z- px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="max-w-7xl mx-auto">
@@ -267,6 +358,8 @@ const ManageUrls = () => {
 
                       {/* URLs */}
                       <div className="space-y-2">
+
+                        {/* Short Url Row */}
                         <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
                           <span className="text-gray-400 text-sm flex-shrink-0">Short URL:</span>
                           <div className="flex items-center space-x-2 min-w-0">
@@ -280,6 +373,7 @@ const ManageUrls = () => {
                           </div>
                         </div>
 
+                        {/* Original Url Row */}
                         <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
                           <span className="text-gray-400 text-sm flex-shrink-0">Original:</span>
                           <div className="flex items-center space-x-2 min-w-0">
@@ -306,8 +400,14 @@ const ManageUrls = () => {
                       </div>
                     </div>
 
+
+
+
+
+
                     {/* Actions */}
                     <div className="flex flex-wrap gap-2 pt-2 border-t border-white/10">
+                      {/* Edit button */}
                       <button
                         onClick={() => handleEdit(url)}
                         className="p-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all duration-200"
@@ -316,6 +416,7 @@ const ManageUrls = () => {
                         <Edit3 className="w-4 h-4" />
                       </button>
 
+                      {/* QR button */}
                       <button
                         onClick={() => {
                           setSelectedUrl(url);
@@ -326,6 +427,8 @@ const ManageUrls = () => {
                       >
                         <QrCode className="w-4 h-4" />
                       </button>
+
+                      {/* DashBoard button */}
                       <Link to={`/dashboard/${url._id}`}>
                         <button
                           className="p-2 bg-purple-500/20 text-purple-400 rounded-lg hover:bg-purple-500/30 transition-all duration-200"
@@ -335,16 +438,18 @@ const ManageUrls = () => {
                         </button>
                       </Link>
 
-                      {url.isPasswordProtected && (
-                        <button
-                          onClick={() => handlePasswordChange(url)}
-                          className="p-2 bg-yellow-500/20 text-yellow-400 rounded-lg hover:bg-yellow-500/30 transition-all duration-200"
-                          title="Change Password"
-                        >
-                          <Lock className="w-4 h-4" />
-                        </button>
-                      )}
 
+                      {/* Password Management */}
+                      <button
+                        onClick={() => handlePasswordChange(url)}
+                        className="p-2 bg-yellow-500/20 text-yellow-400 rounded-lg hover:bg-yellow-500/30 transition-all duration-200"
+                        title="Change Password"
+                      >
+                        <Lock className="w-4 h-4" />
+                      </button>
+
+
+                      {/* Activation Status Button*/}
                       <button
                         onClick={() => handleToggleStatus(url)}
                         className={`p-2 rounded-lg transition-all duration-200 ${url.isActive
@@ -356,6 +461,8 @@ const ManageUrls = () => {
                         {url.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
 
+
+                      {/* Delete Button */}
                       <button
                         onClick={() => handleDelete(url)}
                         className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all duration-200"
@@ -433,7 +540,7 @@ const ManageUrls = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Expiry Date
-                  <span className="text-xs text-gray-400 ml-1">(Cannot be earlier than creation date)</span>
+                  <span className="text-xs text-gray-400 ml-1">(Must be at least 1 hour from now)</span>
                 </label>
                 <input
                   type="date"
@@ -442,11 +549,15 @@ const ManageUrls = () => {
                   onChange={(e) => setEditForm({ ...editForm, expiresAt: e.target.value })}
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
-                {editForm.minDate && (
-                  <p className="text-xs text-gray-400 mt-1">
-                    Minimum date: {new Date(editForm.minDate).toLocaleDateString()}
-                  </p>
-                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Expiry Time</label>
+                <input
+                  type="time"
+                  value={editForm.expiresTime}
+                  onChange={(e) => setEditForm({ ...editForm, expiresTime: e.target.value })}
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
               </div>
             </div>
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
@@ -456,7 +567,10 @@ const ManageUrls = () => {
               >
                 Cancel
               </button>
-              <button className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white hover:from-purple-700 hover:to-pink-700 transition-all duration-300">
+              <button
+                onClick={makeApiCallToSaveEditChanges}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
+              >
                 Save Changes
               </button>
             </div>
@@ -496,7 +610,7 @@ const ManageUrls = () => {
               >
                 Cancel
               </button>
-              <button className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white hover:from-purple-700 hover:to-pink-700 transition-all duration-300">
+              <button onClick={() => updatePassword()} className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white hover:from-purple-700 hover:to-pink-700 transition-all duration-300">
                 Update Password
               </button>
             </div>

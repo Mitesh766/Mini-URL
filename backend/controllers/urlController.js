@@ -48,6 +48,11 @@ export const shortenUrl = asyncHandler(async (req, res, next) => {
     throw new Error("Please fill all the required details.");
   }
 
+  if (!validator.isURL(originalUrl)) {
+    res.status(400);
+    throw new Error("Please enter a valid URL");
+  }
+
   const SHORT_URL_BASE = "https://minli.info";
 
   if (originalUrl.startsWith(SHORT_URL_BASE)) {
@@ -176,3 +181,54 @@ export const changeActivationStatus = asyncHandler(async (req, res) => {
     message: "Activation status updated successfully",
   });
 });
+
+export const updateUrlAndExpiry = asyncHandler(async (req, res) => {
+  const { urlId } = req.params;
+  const { newLongUrl, newExpiry } = req.body || {};
+
+  // Check if both fields are provided
+  if (!newLongUrl || !newExpiry) {
+    res.status(400);
+    throw new Error("Please fill all the details");
+  }
+
+  const trimmedUrl = validator.trim(newLongUrl);
+
+  // Validate the URL format
+  if (!validator.isURL(trimmedUrl)) {
+    res.status(400);
+    throw new Error("Please enter a valid URL");
+  }
+
+  // Validate the expiry date format
+  const expiryDate = new Date(newExpiry);
+  if (isNaN(expiryDate.getTime())) {
+    res.status(400);
+    throw new Error("Please enter a valid expiry date");
+  }
+
+  const SHORT_URL_BASE = "https://minli.info";
+
+  // Prevent self-shortening
+  if (trimmedUrl.startsWith(SHORT_URL_BASE)) {
+    res.status(400);
+    throw new Error("Cannot shorten a URL from this service.");
+  }
+
+  // Find the short URL by ID
+  const urlData = await ShortUrl.findById(urlId);
+  if (!urlData) {
+    res.status(404);
+    throw new Error("Invalid URL ID");
+  }
+
+  // Update the fields
+  urlData.originalUrl = trimmedUrl;
+  urlData.expiresAt = expiryDate;
+  await urlData.save();
+
+  res.status(200).json({
+    message: "URL updated successfully",
+  });
+});
+
