@@ -131,9 +131,10 @@ export const login = asyncHandler(async (req, res) => {
   const token = await user.generateAuthToken();
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
     maxAge: 1000 * 60 * 60 * 24 * 7,
     sameSite: "None",
+    path:"/"
   });
 
   res.status(200).json({
