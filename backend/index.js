@@ -11,7 +11,7 @@ const app = express();
 
 
 const corsOptions = {
-  origin: "https://mini-url-1.onrender.com", 
+  origin: "https://minli.info", 
   credentials: true, 
 };
 
