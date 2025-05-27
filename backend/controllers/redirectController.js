@@ -1,7 +1,7 @@
-import ShortUrl from "../models/ShortUrlModel.js";
-import ClickLog from "../models/ClickLogModel.js";
+import ShortUrl from "../models/ShortUrl.js";
+import ClickLog from "../models/ClickLog.js";
 import bcrypt from "bcrypt";
-import {UAParser} from "ua-parser-js";
+import { UAParser } from "ua-parser-js";
 
 // Bot detection patterns
 const BOT_PATTERNS = [
@@ -111,7 +111,7 @@ const logClick = async (shortUrlId, req, shouldLog = true) => {
   }
 };
 
-export const redirectHandler = async (req, res) => {
+export const redirectHandler = async (req, res, next) => {
   try {
     const { code } = req.params;
     const userAgent = req.get("User-Agent") || "";
@@ -128,12 +128,9 @@ export const redirectHandler = async (req, res) => {
       isActive: true
     });
 
-    // Check if URL exists
+    // If URL doesn't exist, pass to next middleware (React SPA)
     if (!shortUrl) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Short URL not found" 
-      });
+      return next();
     }
 
     // Check if URL has expired
