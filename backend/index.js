@@ -5,6 +5,7 @@ import userRouter from "./routes/userRoutes.js";
 import urlRouter from "./routes/urlRoutes.js";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
+import cors from "cors"
 
 const app = express();
 
