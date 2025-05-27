@@ -61,15 +61,15 @@ export const shortenUrl = asyncHandler(async (req, res, next) => {
   }
 
   const shortCode = await generateUniqueShortCode(aliasType, customAlias);
-  const shortUrl = `${SHORT_URL_BASE}/${shortCode}`;
-  const qrUrl = await generateAndUploadQR(shortUrl, shortCode);
+  const minUrl = `${SHORT_URL_BASE}/${shortCode}`;
+  const qrUrl = await generateAndUploadQR(minUrl, shortCode);
 
   const urlData = new ShortUrl({
     userId: req.user._id,
     title,
     originalUrl,
     shortCode,
-    shortUrl,
+    shortUrl:minUrl,
     isCustomAlias: aliasType === "custom",
     isPasswordProtected,
     password: isPasswordProtected ? await bcrypt.hash(password, 10) : undefined,
