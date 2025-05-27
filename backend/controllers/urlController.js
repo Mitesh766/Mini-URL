@@ -2,7 +2,7 @@ import { nanoid } from "nanoid";
 import asyncHandler from "../utils/asyncHandler.js";
 import { handleExpireTime } from "../utils/expiryDateGenerator.js";
 import bcrypt from "bcrypt";
-import { generateAndUploadQR } from "../utils/generateAndUploadQr.js";
+import { generateAndUploadQR } from "../utils/generateAndUploadQR.js";
 import ShortUrl from "../models/ShortUrlModel.js";
 import validator from "validator";
 
