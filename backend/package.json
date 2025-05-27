@@ -5,9 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "frontend": "cd frontend && npm run dev",
-    "backend": "cd backend && nodemon app.js",
-    "dev": "concurrently \" npm run frontend\" \" npm run backend \"   "
+    "start":"node index.js"
   },
   "author": "Mitesh Agrawal",
   "license": "ISC",
