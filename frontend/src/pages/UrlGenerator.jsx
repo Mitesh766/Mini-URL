@@ -104,7 +104,7 @@ const UrlGenerator = () => {
         setError('');
 
         try {
-
+            const token = localStorage.getItem('token');
             const { data } = await axios.post(`${API_URL}/shortenUrl`, formData, {
                 withCredentials: true
             })

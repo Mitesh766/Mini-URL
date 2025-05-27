@@ -4,7 +4,7 @@ import connectDB from "./config/db.js";
 import userRouter from "./routes/userRoutes.js";
 import urlRouter from "./routes/urlRoutes.js";
 import cookieParser from "cookie-parser";
-import helmet from "helmet";
+// import helmet from "helmet";
 import cors from "cors"
 
 const app = express();
@@ -17,7 +17,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.use(helmet());
+// app.use(helmet());
 connectDB();
 app.use(express.json());
 app.use(cookieParser());
