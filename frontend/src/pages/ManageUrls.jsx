@@ -272,7 +272,7 @@ const ManageUrls = () => {
               <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
                 {/* Search */}
                 <div className="relative flex-1 max-w-full sm:max-w-md">
-                  <Search className="absolute left-3 top-1/3 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
                   <input
                     type="text"
                     placeholder="Search URLs..."
@@ -472,7 +472,7 @@ const ManageUrls = () => {
             {filteredUrls.length === 0 && (
               <div className="text-center py-12 animate-fade-in-up animation-delay-600">
                 <div className="bg-white/5 rounded-full w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center mx-auto mb-4">
-                  <Link className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400" />
+                  <LinkIcon className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-white mb-2">No URLs found</h3>
                 <p className="text-gray-400">Try adjusting your search or filter criteria</p>
