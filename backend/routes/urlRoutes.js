@@ -7,7 +7,7 @@ import {
   changeActivationStatus,
   updateUrlAndExpiry,
 } from "../controllers/urlController.js";
-import { authenticateUser } from "../middlewares/authMiddleWare.js";
+import { authenticateUser } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
