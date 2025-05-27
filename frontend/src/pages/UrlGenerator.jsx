@@ -104,17 +104,11 @@ const UrlGenerator = () => {
         setError('');
 
         try {
-
-            const token = localStorage.getItem('token'); // or however you're storing the token
-
+            
             const { data } = await axios.post(`${API_URL}/shortenUrl`, formData, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
                 withCredentials: true
             })
-
+          
 
             const { originalUrl, qrUrl, shortUrl } = data.newUrl;
 
@@ -145,7 +139,7 @@ const UrlGenerator = () => {
 
     const handleReset = () => {
         setFormData({
-            title: '',
+            title:'',
             originalUrl: '',
             customAlias: '',
             aliasType: 'random',
