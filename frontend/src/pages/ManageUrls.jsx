@@ -25,7 +25,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { setLoading, setUrlData } from '../redux/urlSlice.js';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { downloadImage } from '../utils/downloadImage';
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import Notification from '../components/Notification.jsx';
 import validator from "validator"
 import DeleteConfirmationModal from '../components/Modals/DeleteConfirmationModal.jsx';
@@ -38,15 +38,24 @@ const ManageUrls = () => {
   const dispatch = useDispatch();
   const urlData = useSelector(store => store.url.urls)
   const isLoading = useSelector(store => store.url.isLoading);
+  const navigate = useNavigate()
 
   useEffect(() => {
     async function fetchData() {
-      const { data } = await axios.get(`${API_URL}/`,{withCredentials:true});
-      dispatch(setUrlData(data.urls))
-      dispatch(setLoading(false))
+      try {
+        const { data } = await axios.get(`${API_URL}/`, { withCredentials: true });
+        dispatch(setUrlData(data.urls))
+        dispatch(setLoading(false))
+      }
+      catch (err) {
+        setTimeout(() => {
+           navigate("/login", { replace: true });
+        }, 1000)
+        dispatch(setLoading(false))
+        setErrorMessage(err.response?.data?.message || err.message || "Please login")
+      }
     }
     if (urlData.length == 0) {
-      dispatch(setLoading(true))
       fetchData()
     }
   }, [])

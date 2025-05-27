@@ -5,6 +5,10 @@ import userRouter from "./routes/userRoutes.js";
 import urlRouter from "./routes/urlRoutes.js";
 import cookieParser from "cookie-parser";
 import path from "path";
+import {
+  redirectHandler,
+  verifyPassword,
+} from "./controllers/redirectController.js";
 
 import { fileURLToPath } from "url";
 
@@ -20,7 +24,14 @@ app.use(cookieParser());
 app.use("/api/user", userRouter);
 app.use("/api/url", urlRouter);
 
-// app.get("/:code", redirectHandler);
+app.get("/:code", redirectHandler);
+
+// Handle both GET (normal redirect) and POST (password verification) for short URLs
+app.get("/:code", redirectHandler);
+app.post("/:code", redirectHandler);
+
+// Optional: Dedicated password verification endpoint
+app.post("/api/verify/:code", verifyPassword);
 
 // Fallback for React SPA
 app.get(/^\/(?!api).*/, (req, res) => {
