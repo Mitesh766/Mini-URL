@@ -8,6 +8,15 @@ import helmet from "helmet";
 
 const app = express();
 
+
+const corsOptions = {
+  origin: "https://mini-url-1.onrender.com/", 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+  credentials: true, 
+};
+
+app.use(cors(corsOptions));
+
 app.use(helmet());
 connectDB();
 app.use(express.json());
