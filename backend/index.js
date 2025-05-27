@@ -13,6 +13,7 @@ const app = express();
 const corsOptions = {
   origin: "https://mini-url-1.onrender.com", 
   credentials: true, 
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 app.use(cors(corsOptions));
