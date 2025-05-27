@@ -1,5 +1,5 @@
-import ShortUrl from "../models/ShortUrl.js";
-import ClickLog from "../models/ClickLog.js";
+import ShortUrl from "../models/ShortUrlModel.js";
+import ClickLog from "../models/ClickLogModel.js";
 import bcrypt from "bcrypt";
 import { UAParser } from "ua-parser-js";
 
