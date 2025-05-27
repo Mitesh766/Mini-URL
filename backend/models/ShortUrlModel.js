@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 const ShortUrlSchema = new mongoose.Schema(
   {
     userId: {
@@ -6,7 +7,7 @@ const ShortUrlSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    title:{type:String,required:true},
+    title: { type: String, required: true },
     originalUrl: { type: String, required: true },
     shortCode: { type: String, unique: true, required: true },
     shortUrl: { type: String, unique: true, required: true },
@@ -14,17 +15,17 @@ const ShortUrlSchema = new mongoose.Schema(
     isPasswordProtected: { type: Boolean, default: false },
     password: { type: String },
     createdAt: { type: Date, default: Date.now },
-    expiresAt: { type: Date },
+    expiresAt: { type: Date }, 
     isActive: { type: Boolean, default: true },
     isOneTime: { type: Boolean, default: false },
     hasBeenUsed: { type: Boolean, default: false },
-     qrUrl: { type: String },
+    qrUrl: { type: String },
     clickCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
 
-ShortUrlSchema.index({ shortCode: 1 });
+
 ShortUrlSchema.index({ userId: 1 });
 ShortUrlSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 

@@ -18,9 +18,6 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
-UserSchema.index({
-  email: 1,
-});
 
 UserSchema.methods.generateAuthToken = function () {
   const token = jwt.sign(
