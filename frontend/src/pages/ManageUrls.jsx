@@ -41,7 +41,7 @@ const ManageUrls = () => {
 
   useEffect(() => {
     async function fetchData() {
-      const { data } = await axios.get(`${API_URL}/`);
+      const { data } = await axios.get(`${API_URL}/`,{withCredentials:true});
       dispatch(setUrlData(data.urls))
       dispatch(setLoading(false))
     }
