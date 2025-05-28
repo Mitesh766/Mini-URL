@@ -401,7 +401,7 @@ export const handleGetRequest = async (req, res, next) => {
     }
 
     // Handle errors for non-bot requests
-    if (!isBotRequest) {
+    
       if (error === 'expired') {
         return res.send(getErrorHTML("This link has expired and is no longer accessible.", "Link Expired"));
       }
@@ -414,7 +414,7 @@ export const handleGetRequest = async (req, res, next) => {
       if (shortUrl.isPasswordProtected) {
         return res.send(getPasswordInputHTML(code, shortUrl.title));
       }
-    }
+    
 
     // For non-password protected URLs or bots, redirect directly
     if (!isBotRequest) {
