@@ -15,7 +15,7 @@ const app = express();
 
 connectDB();
 app.use(express.static(path.join(__dirname, "dist")));
-router.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
