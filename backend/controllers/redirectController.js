@@ -390,7 +390,6 @@ export const handleGetRequest = async (req, res, next) => {
     const userAgent = req.get("User-Agent") || "";
     const isBotRequest = isLikelyBot(req);
     
-    console.log(`GET request for ${code} from ${isBotRequest ? 'BOT' : 'USER'}: ${userAgent}`);
     
     const { error, shortUrl } = await findAndValidateShortUrl(code, isBotRequest);
 
@@ -430,10 +429,7 @@ export const handleGetRequest = async (req, res, next) => {
       await ShortUrl.findByIdAndUpdate(shortUrl._id, updateData);
       await logAnalytics(shortUrl._id, req);
       
-      console.log(`User redirected: ${code} -> ${shortUrl.originalUrl}`);
-    } else {
-      console.log(`Bot preview: ${code} -> ${shortUrl.originalUrl}`);
-    }
+    } 
 
     return res.redirect(302, shortUrl.originalUrl);
 
@@ -451,7 +447,7 @@ export const handlePostRequest = async (req, res, next) => {
     const userAgent = req.get("User-Agent") || "";
     const isBotRequest = isLikelyBot(req);
     
-    console.log(`POST request for ${code} with password attempt`);
+   
 
     if (isBotRequest) {
   
@@ -503,7 +499,6 @@ export const handlePostRequest = async (req, res, next) => {
     await ShortUrl.findByIdAndUpdate(shortUrl._id, updateData);
     await logAnalytics(shortUrl._id, req);
     
-    console.log(`User authenticated and redirected: ${code} -> ${shortUrl.originalUrl}`);
 
     return res.redirect(302, shortUrl.originalUrl);
 
