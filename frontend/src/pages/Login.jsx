@@ -1,4 +1,4 @@
-import  { useState } from 'react';
+import { useState } from 'react';
 import { Link, Mail, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import validator from "validator"
 import Notification from '../components/Notification';
@@ -6,8 +6,9 @@ import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import { USERS_URL } from '../utils/constants';
 import { useDispatch, useSelector } from 'react-redux';
-import { addUserData, setLoading } from '../redux/userSlice';
+import { addUserData, setLoading, setLogin } from '../redux/userSlice';
 import LoadingOverlay from '../components/LoadingOverlay';
+import { useEffect } from 'react';
 
 
 const Login = () => {
@@ -18,6 +19,7 @@ const Login = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const isLoading = useSelector(store => store.user.isLoading);
+    const isLoggedIn = useSelector(store => store.user.isLoggedIn);
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
@@ -84,6 +86,7 @@ const Login = () => {
                 fullName: data?.fullName,
                 email: data?.email,
             }
+            dispatch(setLogin(true))
             dispatch(addUserData(dataToStore));
             setTimeout(() => {
                 dispatch(setLoading(false));
@@ -126,14 +129,22 @@ const Login = () => {
 
     const toggleMode = () => {
         setIsLogin(!isLogin);
-
     };
+    useEffect(() => {
+        if (isLoggedIn) {
+            setErrorMessage("Already logged in ");
+            const timer = setTimeout(() => {
+                navigate("/", { replace: true })
+            }, 1000)
+            return () => clearTimeout(timer)
+        }
+    }, [isLoggedIn,navigate])
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">
             {isLoading ? <LoadingOverlay isLoading={isLoading} message={"Please wait while getting logged in ."} /> : ""}
             {errorMessage && <Notification messageType="error" message={errorMessage} onClose={() => setErrorMessage(false)} />}
-
 
             {/* Main Content Container */}
             <div className="flex items-center justify-center min-h-screen p-4 py-8">
@@ -172,7 +183,7 @@ const Login = () => {
                                         Full Name
                                     </label>
                                     <div className="relative">
-                                        <User className="absolute left-3 top-1/3 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                                         <input
                                             type="text"
                                             name="fullName"
@@ -193,7 +204,7 @@ const Login = () => {
                                     Email Address
                                 </label>
                                 <div className="relative flex items-center justify-center">
-                                    <Mail className="absolute left-3 top-1/3 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                                     <input
                                         type="email"
                                         name="email"
@@ -213,7 +224,7 @@ const Login = () => {
                                     Password
                                 </label>
                                 <div className="relative">
-                                    <Lock className="absolute left-3 top-1/3 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                                     <input
                                         type={showPassword ? "text" : "password"}
                                         name="password"
@@ -226,7 +237,7 @@ const Login = () => {
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/3 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors duration-200"
+                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors duration-200"
                                     >
                                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                     </button>
@@ -240,7 +251,7 @@ const Login = () => {
                                         Confirm Password
                                     </label>
                                     <div className="relative">
-                                        <Lock className="absolute left-3 top-1/3 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                                         <input
                                             type={showConfirmPassword ? "text" : "password"}
                                             name="confirmPassword"
@@ -253,7 +264,7 @@ const Login = () => {
                                         <button
                                             type="button"
                                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            className="absolute right-3 top-1/3 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors duration-200"
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors duration-200"
                                         >
                                             {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                         </button>

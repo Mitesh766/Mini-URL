@@ -133,7 +133,7 @@ export const login = asyncHandler(async (req, res) => {
     httpOnly: true,
     secure: true,
     sameSite: "None",
-    path:"/"
+    path: "/",
   });
 
   res.status(200).json({
@@ -143,4 +143,24 @@ export const login = asyncHandler(async (req, res) => {
     email: user.email,
     _id: user._id,
   });
+});
+
+export const verifyLogin = asyncHandler(async (req, res) => {
+  res.status(200).json({ isLoggedIn: true });
+});
+
+export const logout = asyncHandler(async (req, res) => {
+  try {
+    res
+      .clearCookie("token", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+      })
+      .status(200)
+      .json({ message: "Logged out successfully" });
+  } catch (error) {
+    res.status(500);
+    throw new Error("Logout failed");
+  }
 });

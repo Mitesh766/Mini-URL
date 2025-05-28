@@ -21,7 +21,9 @@ import Notification from '../components/Notification';
 import { API_URL } from '../utils/constants';
 import axios from 'axios';
 import { downloadImage } from '../utils/downloadImage';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
 
 const UrlGenerator = () => {
     const [formData, setFormData] = useState({
@@ -42,6 +44,8 @@ const UrlGenerator = () => {
     const [error, setError] = useState('');
     const [showQRCode, setShowQRCode] = useState(false);
     const [copied, setCopied] = useState(false);
+    var isLoggedIn = useSelector(store => store.user.isLoggedIn)
+    const navigate = useNavigate();
 
     const expirationOptions = [
         { value: '6h', label: '6 Hours', icon: Clock },
@@ -104,11 +108,11 @@ const UrlGenerator = () => {
         setError('');
 
         try {
-            
+
             const { data } = await axios.post(`${API_URL}/shortenUrl`, formData, {
                 withCredentials: true
             })
-          
+
 
             const { originalUrl, qrUrl, shortUrl } = data.newUrl;
 
@@ -139,7 +143,7 @@ const UrlGenerator = () => {
 
     const handleReset = () => {
         setFormData({
-            title:'',
+            title: '',
             originalUrl: '',
             customAlias: '',
             aliasType: 'random',
@@ -152,6 +156,21 @@ const UrlGenerator = () => {
         setError('');
         setShowAdvanced(false);
     };
+
+    useEffect(() => {
+
+        if (!isLoggedIn) {
+            const timer = setTimeout(()=>{
+                if(!isLoggedIn){
+                    setError("Please Login");
+                    console.log("Not true in generator ")
+                    navigate("/login",{replace:true})
+                }
+            },1500)
+
+            return () => clearTimeout(timer);
+        }
+    }, [isLoggedIn,navigate])
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white relative">

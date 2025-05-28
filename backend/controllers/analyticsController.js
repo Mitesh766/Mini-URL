@@ -74,11 +74,19 @@ export const getAnalytics = asyncHandler(async (req, res) => {
       },
       {
         $group: {
-          _id: { hour: { $hour: "$timestamp" } },
+          _id: {
+            date: { $dateToString: { format: "%Y-%m-%d", date: "$timestamp" } },
+            hour: { $hour: "$timestamp" }
+          },
           count: { $sum: 1 },
         },
       },
-      { $sort: { "_id.hour": 1 } },
+      { 
+        $sort: { 
+          "_id.date": 1,
+          "_id.hour": 1 
+        } 
+      },
     ]),
   ]);
 

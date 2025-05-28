@@ -49,7 +49,7 @@ const ManageUrls = () => {
       }
       catch (err) {
         setTimeout(() => {
-           navigate("/login", { replace: true });
+          navigate("/login", { replace: true });
         }, 1000)
         dispatch(setLoading(false))
         setErrorMessage(err.response?.data?.message || err.message || "Please login")
@@ -81,6 +81,7 @@ const ManageUrls = () => {
   const [passwordForm, setPasswordForm] = useState({ password: ' ', confirmPassword: ' ' });
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const handleEdit = (url) => {
     setSelectedUrl(url);
@@ -236,13 +237,16 @@ const ManageUrls = () => {
 
   const handleUrlCopy = async (url) => {
     try {
+      setCopied(true)
       await navigator.clipboard.writeText(url.shortUrl);
       setSuccessMessage("URL copied to clipboard");
+      setTimeout(() => setCopied(false), 2000)
     } catch (err) {
       console.error("Failed to copy:", err);
       setErrorMessage("Failed to copy URL");
     }
   }
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">
@@ -363,7 +367,8 @@ const ManageUrls = () => {
                               onClick={async () => await handleUrlCopy(url)}
                               className="p-1 hover:bg-white/10 rounded transition-colors duration-200 flex-shrink-0"
                             >
-                              <Copy className="w-4 h-4 text-gray-400 hover:text-white" />
+                              <Copy className={`w-4 h-4 ${copied ? 'text-green-400' : 'text-gray-400'}`} />
+
                             </button>
                           </div>
                         </div>
