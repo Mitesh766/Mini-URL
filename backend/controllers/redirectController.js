@@ -55,7 +55,7 @@ const isBot = (userAgent) => {
   // Convert to lowercase for easier matching
   const ua = userAgent.toLowerCase();
   
-  // First check if it's a known legitimate browser (including mobile browsers)
+  // First check if it's a known legitimate browser
   // These patterns indicate real browsers, not bots
   const browserPatterns = [
     /chrome\/\d+/,
@@ -63,23 +63,29 @@ const isBot = (userAgent) => {
     /safari\/\d+/,
     /edge\/\d+/,
     /opera\/\d+/,
-    // Mobile browser patterns
-    /mobile safari/,
-    /chrome mobile/,
-    /firefox mobile/,
-    /samsung browser/,
-    /miuibrowser/,
-    /ucbrowser/,
-    // iOS browsers
-    /crios\/\d+/, // Chrome on iOS
-    /fxios\/\d+/, // Firefox on iOS
-    /version\/[\d.]+ mobile.*safari/, // Mobile Safari
-    // Android browsers
-    /android.*chrome/,
-    /android.*firefox/,
-    /android.*safari/,
   ];
   
+  // If it matches a browser pattern and doesn't contain obvious bot indicators,
+  // it's likely a real browser
+  const isBrowser = browserPatterns.some(pattern => pattern.test(ua));
+  if (isBrowser) {
+    // Even if it's a browser, check for obvious bot indicators
+    const obviousBotPatterns = [
+      /headless/,
+      /phantom/,
+      /selenium/,
+      /webdriver/,
+      /automated/,
+    ];
+    
+    if (!obviousBotPatterns.some(pattern => pattern.test(ua))) {
+      return false; // It's a real browser
+    }
+  }
+  
+  // Check against bot patterns
+  return BOT_PATTERNS.some(pattern => pattern.test(userAgent));
+};
 
 // Enhanced bot detection with additional checks
 const isLikelyBot = (req) => {
@@ -358,20 +364,19 @@ const getErrorHTML = (message, title = "Link Unavailable") => {
 const findAndValidateShortUrl = async (code, isBotRequest = false) => {
   const shortUrl = await ShortUrl.findOne({ 
     shortCode: code,
-    isActive: true
   });
 
   if (!shortUrl) {
     return { error: 'not_found', shortUrl: null };
   }
+  
+  if(!shortUrl.isActive){
+    return { error: 'disabled', shortUrl: null };
 
-  // Check expiration (skip for bots to allow previews)
-  if (!isBotRequest && shortUrl.expiresAt && new Date() > shortUrl.expiresAt) {
-    return { error: 'expired', shortUrl };
   }
 
   // Check one-time usage (skip for bots)
-  if (!isBotRequest && shortUrl.isOneTime && shortUrl.hasBeenUsed) {
+  if (shortUrl.isOneTime && shortUrl.hasBeenUsed) {
     return { error: 'used', shortUrl };
   }
 
@@ -395,9 +400,13 @@ export const handleGetRequest = async (req, res, next) => {
     }
 
     // Handle errors for non-bot requests
-    if (!isBotRequest) {
+
       if (error === 'expired') {
         return res.send(getErrorHTML("This link has expired and is no longer accessible.", "Link Expired"));
+      }
+      
+      if(error==='disabled'){
+        return res.send(getErrorHTML("This link has been disabled by the owner"));
       }
       
       if (error === 'used') {
@@ -408,7 +417,7 @@ export const handleGetRequest = async (req, res, next) => {
       if (shortUrl.isPasswordProtected) {
         return res.send(getPasswordInputHTML(code, shortUrl.title));
       }
-    }
+    
 
     // For non-password protected URLs or bots, redirect directly
     if (!isBotRequest) {
@@ -426,7 +435,7 @@ export const handleGetRequest = async (req, res, next) => {
       console.log(`Bot preview: ${code} -> ${shortUrl.originalUrl}`);
     }
 
-    return res.redirect(301, shortUrl.originalUrl);
+    return res.redirect(302, shortUrl.originalUrl);
 
   } catch (error) {
     console.error("GET redirect error:", error);
@@ -446,7 +455,7 @@ export const handlePostRequest = async (req, res, next) => {
 
     if (isBotRequest) {
       // Bots shouldn't be making POST requests, redirect to GET
-      return res.redirect(301, `/${code}`);
+      return res.redirect(302, `/${code}`);
     }
 
     const { error, shortUrl } = await findAndValidateShortUrl(code, isBotRequest);
@@ -465,9 +474,13 @@ export const handlePostRequest = async (req, res, next) => {
       return res.send(getErrorHTML("This one-time link has already been used and cannot be accessed again.", "Link Already Used"));
     }
 
+    if(error==='disabled'){
+        return res.send(getErrorHTML("This link has been disabled by the owner"));
+      }
+
     // If not password protected, redirect to GET
     if (!shortUrl.isPasswordProtected) {
-      return res.redirect(301, `/${code}`);
+      return res.redirect(302, `/${code}`);
     }
 
     // Check if password was provided
@@ -492,7 +505,7 @@ export const handlePostRequest = async (req, res, next) => {
     
     console.log(`User authenticated and redirected: ${code} -> ${shortUrl.originalUrl}`);
 
-    return res.redirect(301, shortUrl.originalUrl);
+    return res.redirect(302, shortUrl.originalUrl);
 
   } catch (error) {
     console.error("POST redirect error:", error);
