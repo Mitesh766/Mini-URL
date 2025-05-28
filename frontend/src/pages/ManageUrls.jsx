@@ -340,8 +340,7 @@ const ManageUrls = () => {
                           {url.expiresAt && (
                             <span className="flex items-center space-x-1 px-2 py-1 bg-orange-500/20 text-orange-400 rounded-lg text-xs">
                               <Clock className="w-3 h-3" />
-                              <span className="hidden sm:inline">Expires {new Date(url.expiresAt).toLocaleString()}</span>
-                              <span className="sm:hidden">Expires</span>
+                              <span className="inline">Expires {new Date(url.expiresAt).toLocaleString()}</span>
                             </span>
                           )}
                           {url.isOneTime && (
