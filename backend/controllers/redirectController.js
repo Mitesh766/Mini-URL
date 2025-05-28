@@ -13,110 +13,15 @@ const BOT_PATTERNS = [
   /slackbot/i,
   /linkedinbot/i,
   /discordbot/i,
-  
-  // Search engine crawlers
-  /googlebot/i,
-  /bingbot/i,
-  /yandexbot/i,
-  /baiduspider/i,
-  
-  // Generic crawler patterns (more specific)
-  /crawler/i,
-  /spider/i,
-  /scraper/i,
-  
-  // Preview generators
-  /preview/i,
-  /unfurl/i,
-  /thumbnail/i,
-  
-  // Specific bot names (avoid generic "bot" pattern)
-  /applebot/i,
-  /amazonbot/i,
-  /duckduckbot/i,
-  /msnbot/i,
-  /slurp/i, // Yahoo bot
-  
-  // Headless browsers often used by bots
-  /headlesschrome/i,
-  /phantomjs/i,
-  /selenium/i,
-  
-  // Monitoring services
-  /uptimerobot/i,
-  /pingdom/i,
-  /statuspage/i,
+
 ];
 
 // Check if request is from a bot
 const isBot = (userAgent) => {
-  if (!userAgent) return false;
-  
-  // Convert to lowercase for easier matching
-  const ua = userAgent.toLowerCase();
-  
-  // First check if it's a known legitimate browser
-  // These patterns indicate real browsers, not bots
-  const browserPatterns = [
-    /chrome\/\d+/,
-    /firefox\/\d+/,
-    /safari\/\d+/,
-    /edge\/\d+/,
-    /opera\/\d+/,
-  ];
-  
-  // If it matches a browser pattern and doesn't contain obvious bot indicators,
-  // it's likely a real browser
-  const isBrowser = browserPatterns.some(pattern => pattern.test(ua));
-  if (isBrowser) {
-    // Even if it's a browser, check for obvious bot indicators
-    const obviousBotPatterns = [
-      /headless/,
-      /phantom/,
-      /selenium/,
-      /webdriver/,
-      /automated/,
-    ];
-    
-    if (!obviousBotPatterns.some(pattern => pattern.test(ua))) {
-      return false; // It's a real browser
-    }
-  }
-  
-  // Check against bot patterns
   return BOT_PATTERNS.some(pattern => pattern.test(userAgent));
 };
 
-// Enhanced bot detection with additional checks
-const isLikelyBot = (req) => {
-  const userAgent = req.get("User-Agent") || "";
-  
-  // Check user agent
-  if (isBot(userAgent)) {
-    return true;
-  }
-  
-  // Additional checks for headless browsers or automation
-  const headers = req.headers;
-  
-  // Check for missing headers that real browsers usually have
-  const browserHeaders = ['accept', 'accept-language', 'accept-encoding'];
-  const missingHeaders = browserHeaders.filter(header => !headers[header]);
-  
-  // If missing too many browser headers, might be a bot
-  if (missingHeaders.length >= 2) {
-    return true;
-  }
-  
-  // Check for automation indicators in headers
-  if (headers['x-requested-with'] || 
-      headers['x-automation'] || 
-      headers['webdriver']) {
-    return true;
-  }
-  
-  return false;
-};
+
 
 // Log analytics for real users only
 const logAnalytics = async (shortUrlId, req) => {
@@ -371,10 +276,6 @@ const findAndValidateShortUrl = async (code, isBotRequest = false) => {
     return { error: 'not_found', shortUrl: null };
   }
 
-  // Check expiration (skip for bots to allow previews)
-  if (!isBotRequest && shortUrl.expiresAt && new Date() > shortUrl.expiresAt) {
-    return { error: 'expired', shortUrl };
-  }
 
   // Check one-time usage (skip for bots)
   if (!isBotRequest && shortUrl.isOneTime && shortUrl.hasBeenUsed) {
@@ -389,7 +290,7 @@ export const handleGetRequest = async (req, res, next) => {
   try {
     const { code } = req.params;
     const userAgent = req.get("User-Agent") || "";
-    const isBotRequest = isLikelyBot(req);
+    const isBotRequest = isBot(req);
     
     console.log(`GET request for ${code} from ${isBotRequest ? 'BOT' : 'USER'}: ${userAgent}`);
     
@@ -414,6 +315,7 @@ export const handleGetRequest = async (req, res, next) => {
       if (shortUrl.isPasswordProtected) {
         return res.send(getPasswordInputHTML(code, shortUrl.title));
       }
+
     
 
     // For non-password protected URLs or bots, redirect directly
@@ -446,7 +348,7 @@ export const handlePostRequest = async (req, res, next) => {
     const { code } = req.params;
     const { password } = req.body;
     const userAgent = req.get("User-Agent") || "";
-    const isBotRequest = isLikelyBot(req);
+    const isBotRequest = isBot(req);
     
     console.log(`POST request for ${code} with password attempt`);
 
