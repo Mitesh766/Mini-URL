@@ -13,7 +13,7 @@ import ShortUrl from "../models/ShortUrlModel.js";
  */
 export const generateUniqueShortCode = async (aliasType, customAlias) => {
   let shortCode = aliasType === "custom" ? customAlias : nanoid(8);
-
+  
   let existing = await ShortUrl.findOne({ shortCode });
 
   if (existing) {

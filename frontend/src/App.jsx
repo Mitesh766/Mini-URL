@@ -32,24 +32,29 @@ const App = () => {
   }, [])
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/contact" element={<ContactPage />} />
-      <Route
-        element={
-          <ProtectedRoute>
-            <Outlet />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="/generate" element={<UrlGenerator />} />
-        <Route path="/manage" element={<ManageUrls />} />
-        <Route path="/report" element={<ReportIssue />} />
-        <Route path="/dashboard/:urlId" element={<Dashboard />} />
-      </Route>
+  {/* Public Routes */}
+  <Route path="/" element={<LandingPage />} />
+  <Route path="/login" element={<Login />} />
+  <Route path="/contact" element={<ContactPage />} />
 
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
+  {/* Protected Routes */}
+  <Route
+    element={
+      <ProtectedRoute>
+        <Outlet />
+      </ProtectedRoute>
+    }
+  >
+    <Route path="/shorten" element={<UrlGenerator />} />
+    <Route path="/my-links" element={<ManageUrls />} />
+    <Route path="/report-issue" element={<ReportIssue />} />
+    <Route path="/analytics/:urlId" element={<Dashboard />} />
+  </Route>
+
+  {/* 404 Fallback */}
+  <Route path="*" element={<PageNotFound />} />
+</Routes>
+
   );
 };
 

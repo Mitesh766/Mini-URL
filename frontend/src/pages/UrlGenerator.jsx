@@ -24,7 +24,7 @@ import { downloadImage } from '../utils/downloadImage';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
-
+import validator from "validator"
 const UrlGenerator = () => {
     const [formData, setFormData] = useState({
         title: '',
@@ -58,6 +58,10 @@ const UrlGenerator = () => {
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
+        if (name === 'customAlias') {
+            const isValid = /^[a-zA-Z0-9-_]*$/.test(value);
+            if (!isValid) return; // block invalid characters
+        }
         setFormData(prev => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value
@@ -89,10 +93,11 @@ const UrlGenerator = () => {
             return;
         }
 
-        if (!formData.originalUrl.startsWith('https://')) {
-            setError('Please enter a valid URL starting with  https://');
+        if (!validator.isURL(formData.originalUrl)) {
+            setError('Please enter a URL to shorten');
             return;
         }
+
 
         if (formData.aliasType === 'custom' && !formData.customAlias) {
             setError('Please enter a custom alias or choose random');
@@ -160,17 +165,17 @@ const UrlGenerator = () => {
     useEffect(() => {
 
         if (!isLoggedIn) {
-            const timer = setTimeout(()=>{
-                if(!isLoggedIn){
+            const timer = setTimeout(() => {
+                if (!isLoggedIn) {
                     setError("Please Login");
                     console.log("Not true in generator ")
-                    navigate("/login",{replace:true})
+                    navigate("/login", { replace: true })
                 }
-            },1500)
+            }, 1500)
 
             return () => clearTimeout(timer);
         }
-    }, [isLoggedIn,navigate])
+    }, [isLoggedIn, navigate])
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white relative">
@@ -194,7 +199,7 @@ const UrlGenerator = () => {
                         <div className="bg-gradient-to-r from-purple-400 to-pink-400 p-2 rounded-lg">
                             <LinkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                         </div>
-                        <span className="text-lg sm:text-2xl font-bold">Slink</span>
+                        <span className="text-lg sm:text-2xl font-bold">Minli</span>
                     </div>
                 </div>
 
@@ -253,20 +258,22 @@ const UrlGenerator = () => {
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
                                     <button
                                         onClick={() => setShowQRCode(!showQRCode)}
-                                        className="flex items-center justify-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all duration-300 text-sm"
+                                        className="flex cursor-pointer items-center justify-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all duration-300 text-sm"
                                     >
                                         <QrCode className="w-4 h-4 flex-shrink-0" />
                                         <span>QR Code</span>
                                     </button>
 
-                                    <button className="flex items-center justify-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all duration-300 text-sm">
+                                    <Link to="/my-links">
+                                    <button className="flex items-center cursor-pointer justify-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all duration-300 text-sm">
                                         <ExternalLink className="w-4 h-4 flex-shrink-0" />
                                         <span>Manage URLs</span>
                                     </button>
+                                    </Link>
 
                                     <button
                                         onClick={handleReset}
-                                        className="flex items-center justify-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 text-sm"
+                                        className="flex cursor-pointer items-center justify-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 text-sm"
                                     >
                                         <RefreshCw className="w-4 h-4 flex-shrink-0" />
                                         <span>New URL</span>
@@ -365,7 +372,7 @@ const UrlGenerator = () => {
                                     <button
                                         type="button"
                                         onClick={() => setFormData(prev => ({ ...prev, aliasType: 'random', customAlias: '' }))}
-                                        className={`p-2.5 sm:p-3 rounded-lg border transition-all duration-300 ${formData.aliasType === 'random'
+                                        className={`p-2.5 sm:p-3 rounded-lg border cursor-pointer transition-all duration-300 ${formData.aliasType === 'random'
                                             ? 'bg-purple-600/50 border-purple-500 text-white'
                                             : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
                                             }`}
@@ -376,7 +383,7 @@ const UrlGenerator = () => {
                                     <button
                                         type="button"
                                         onClick={() => setFormData(prev => ({ ...prev, aliasType: 'custom' }))}
-                                        className={`p-2.5 sm:p-3 rounded-lg border transition-all duration-300 ${formData.aliasType === 'custom'
+                                        className={`p-2.5 sm:p-3 rounded-lg cursor-pointer border transition-all duration-300 ${formData.aliasType === 'custom'
                                             ? 'bg-purple-600/50 border-purple-500 text-white'
                                             : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
                                             }`}
@@ -388,10 +395,12 @@ const UrlGenerator = () => {
 
                                 {formData.aliasType === 'custom' && (
                                     <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
-                                        <span className="text-gray-400 text-sm flex-shrink-0">slink.io/</span>
+                                        <span className="text-gray-400 text-sm flex-shrink-0">minli.info/</span>
                                         <input
                                             type="text"
                                             name="customAlias"
+                                            pattern="^[a-zA-Z0-9-_]+$"
+                                            title="Only letters, numbers, hyphens (-), and underscores (_) are allowed."
                                             value={formData.customAlias}
                                             onChange={handleInputChange}
                                             className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 text-sm"
@@ -405,9 +414,9 @@ const UrlGenerator = () => {
                             <button
                                 type="button"
                                 onClick={() => setShowAdvanced(!showAdvanced)}
-                                className="flex items-center justify-between w-full p-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all duration-300 mb-4"
+                                className="flex items-center justify-between cursor-pointer w-full p-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all duration-300 mb-4"
                             >
-                                <div className="flex items-center space-x-2">
+                                <div className="flex items-center space-x-2 cursor-pointer">
                                     <Settings className="w-4 h-4 flex-shrink-0" />
                                     <span className="font-medium text-sm sm:text-base">Advanced Options</span>
                                 </div>
@@ -431,7 +440,7 @@ const UrlGenerator = () => {
                                                         key={option.value}
                                                         type="button"
                                                         onClick={() => handleExpirationChange(option.value)}
-                                                        className={`p-2.5 sm:p-3 rounded-lg border transition-all duration-300 text-center ${formData.expirationTime === option.value
+                                                        className={`p-2.5 sm:p-3 rounded-lg border cursor-pointer transition-all duration-300 text-center ${formData.expirationTime === option.value
                                                             ? 'bg-purple-600/50 border-purple-500 text-white shadow-lg shadow-purple-500/25'
                                                             : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:border-white/20'
                                                             }`}
@@ -454,7 +463,7 @@ const UrlGenerator = () => {
                                                 name="isPasswordProtected"
                                                 checked={formData.isPasswordProtected}
                                                 onChange={handleInputChange}
-                                                className="w-4 h-4 text-purple-600 bg-white/10 border-white/20 rounded focus:ring-purple-500 mt-0.5 sm:mt-0 flex-shrink-0"
+                                                className="w-4 h-4 text-purple-600 cursor-pointer bg-white/10 border-white/20 rounded focus:ring-purple-500 mt-0.5 sm:mt-0 flex-shrink-0"
                                             />
                                             <span className="text-sm font-medium text-gray-300">
                                                 <Lock className="w-4 h-4 inline mr-1" />
@@ -476,7 +485,7 @@ const UrlGenerator = () => {
                                                     onClick={() => setShowPassword(!showPassword)}
                                                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
                                                 >
-                                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                    {showPassword ? <EyeOff className="w-4 cursor-pointer h-4" /> : <Eye className="w-4 cursor-pointer h-4" />}
                                                 </button>
                                             </div>
                                         )}
@@ -490,7 +499,7 @@ const UrlGenerator = () => {
                                                 name="isOneTime"
                                                 checked={formData.isOneTime}
                                                 onChange={handleInputChange}
-                                                className="w-4 h-4 text-purple-600 bg-white/10 border-white/20 rounded focus:ring-purple-500 mt-0.5 sm:mt-0 flex-shrink-0"
+                                                className="w-4 h-4 cursor-pointer text-purple-600 bg-white/10 border-white/20 rounded focus:ring-purple-500 mt-0.5 sm:mt-0 flex-shrink-0"
                                             />
                                             <span className="text-sm font-medium text-gray-300">
                                                 One-time use URL (expires after first click)
@@ -509,7 +518,7 @@ const UrlGenerator = () => {
                             <button
                                 onClick={handleGenerate}
                                 disabled={isGenerating}
-                                className="w-full mt-6 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-semibold text-white hover:from-purple-700 hover:to-pink-700 transform hover:scale-[1.02] transition-all duration-300 shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base"
+                                className="w-full cursor-pointer mt-6 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-semibold text-white hover:from-purple-700 hover:to-pink-700 transform hover:scale-[1.02] transition-all duration-300 shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base"
                             >
                                 {isGenerating ? (
                                     <div className="flex items-center justify-center space-x-2">

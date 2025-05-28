@@ -246,7 +246,7 @@ const ManageUrls = () => {
       setErrorMessage("Failed to copy URL");
     }
   }
-  
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">
@@ -297,7 +297,7 @@ const ManageUrls = () => {
 
                 {/* New URL Button */}
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-                  <Link to='/generate'>
+                  <Link to='/shorten'>
                     <button className="px-4 py-2 sm:py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-medium text-white hover:from-purple-700 hover:to-pink-700 transition-all duration-300 flex items-center justify-center space-x-2 text-sm sm:text-base">
                       <Plus className="w-4 h-4" />
                       <span>New URL</span>
@@ -429,7 +429,7 @@ const ManageUrls = () => {
                       </button>
 
                       {/* DashBoard button */}
-                      <Link to={`/dashboard/${url._id}`}>
+                      <Link to={`/analytics/${url._id}`}>
                         <button
                           className="p-2 bg-purple-500/20 text-purple-400 rounded-lg hover:bg-purple-500/30 transition-all duration-200"
                           title="Statistics"

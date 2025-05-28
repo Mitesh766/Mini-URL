@@ -395,7 +395,8 @@ export const handleGetRequest = async (req, res, next) => {
 
     // If URL doesn't exist, fallback to frontend
     if (error === 'not_found') {
-      return next();
+      // return res.send(getErrorHTML("No such URL exists", "404 Not Found"));
+       return next()
     }
 
     // Handle errors for non-bot requests

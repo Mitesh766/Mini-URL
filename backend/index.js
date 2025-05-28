@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 import analyticsRoutes from "./routes/analyticsRoutes.js"
+import { RESERVED_FRONTEND_ROUTES } from "./utils/constants.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,9 +37,22 @@ app.use('/api/analytics', analyticsRoutes);
 
 
 
-app.get('/:code', handleGetRequest);
+app.get('/:code', (req, res, next) => {
+  const { code } = req.params;
+  if (RESERVED_FRONTEND_ROUTES.includes(code.toLowerCase())) {
+    return res.sendFile(path.join(__dirname, "dist", "index.html"));
+  }
+  return handleGetRequest(req, res,next);
+});
 
-app.post('/:code', handlePostRequest);
+
+app.post('/:code', (req, res, next) => {
+  const { code } = req.params;
+  if (RESERVED_FRONTEND_ROUTES.includes(code.toLowerCase())) {
+    return res.status(400).json({ message: "Reserved route" });
+  }
+  return handlePostRequest(req, res,next);
+});
 
 
 

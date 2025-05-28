@@ -81,7 +81,7 @@ const LandingPage = () => {
 
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-20 animate-fade-in-up animation-delay-200">
-                        <Link to="/generate" className="w-full sm:w-auto">
+                        <Link to="/shorten" className="w-full sm:w-auto">
                             <button className="group relative px-10 py-4 bg-gradient-to-r cursor-pointer from-purple-600 to-pink-600 rounded-full font-semibold text-lg hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-purple-500/25 w-full">
                                 <div className="flex items-center justify-center space-x-3 relative z-10">
                                     <Zap className="w-5 h-5 group-hover:animate-pulse" />
@@ -91,7 +91,7 @@ const LandingPage = () => {
                             </button>
                         </Link>
 
-                        <Link to="/manage" className="w-full sm:w-auto">
+                        <Link to="/my-links" className="w-full sm:w-auto">
                             <button className="group px-10 py-4 cursor-pointer bg-white/10 backdrop-blur-sm border border-white/20 rounded-full font-semibold text-lg hover:bg-white/20 transform hover:scale-105 transition-all duration-300 shadow-xl w-full">
                                 <div className="flex items-center justify-center space-x-3">
                                     <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
@@ -180,7 +180,7 @@ const LandingPage = () => {
                             Create your first shortened URL and explore all the powerful features.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Link to="/generate">
+                            <Link to="/shorten">
                                 <button className="px-8 py-3 bg-gradient-to-r cursor-pointer from-purple-600 to-pink-600 rounded-full font-semibold hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-300 shadow-lg">
                                     Start Shortening
                                 </button>

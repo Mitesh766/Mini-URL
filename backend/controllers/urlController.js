@@ -7,6 +7,7 @@ import ShortUrl from "../models/ShortUrlModel.js";
 import validator from "validator";
 
 import { generateUniqueShortCode } from "../utils/generateShortCode.js";
+import { RESERVED_FRONTEND_ROUTES } from "../utils/constants.js";
 
 /**
  * @desc    Creates a new shortened URL with optional custom alias, password protection, expiration, and one-time usage.
@@ -54,22 +55,42 @@ export const shortenUrl = asyncHandler(async (req, res, next) => {
   }
 
   const SHORT_URL_BASE = "https://minli.info";
+  const URL_BASE = "minli.info";
 
-  if (originalUrl.startsWith(SHORT_URL_BASE)) {
+  if (
+    originalUrl.startsWith(SHORT_URL_BASE) ||
+    originalUrl.startsWith("http://" + URL_BASE) ||
+    originalUrl.startsWith("www." + URL_BASE)
+  ) {
     res.status(400);
     throw new Error("Cannot shorten a URL from this service.");
   }
 
+  if (aliasType === "custom") {
+    const aliasRegex = /^[a-zA-Z0-9_-]+$/;
+    if (!aliasRegex.test(customAlias)) {
+      res.status(400);
+      throw new Error(
+        "Alias can only contain letters, numbers, hyphens (-), and underscores (_)."
+      );
+    }
+  }
+
   const shortCode = await generateUniqueShortCode(aliasType, customAlias);
+
+  if (aliasType==="custom" && RESERVED_FRONTEND_ROUTES.includes(customAlias.toLowerCase())) {
+    res.status(400);
+    throw new Error("This alias is reserved. Please choose another one.");
+  }
+
   const minUrl = `${SHORT_URL_BASE}/${shortCode}`;
   const qrUrl = await generateAndUploadQR(minUrl, shortCode);
-
   const urlData = new ShortUrl({
     userId: req.user._id,
     title,
     originalUrl,
     shortCode,
-    shortUrl:minUrl,
+    shortUrl: minUrl,
     isCustomAlias: aliasType === "custom",
     isPasswordProtected,
     password: isPasswordProtected ? await bcrypt.hash(password, 10) : undefined,
@@ -84,7 +105,6 @@ export const shortenUrl = asyncHandler(async (req, res, next) => {
     newUrl,
   });
 });
-
 /**
  * @desc    Retrieves all shortened URLs created by the authenticated user.
  *          Returns metadata for each URL, including status, protection, and usage details.
@@ -115,7 +135,6 @@ export const getAllUrls = asyncHandler(async (req, res) => {
   });
 });
 
-
 /**
  * @desc    Updates or removes password protection for a shortened URL.
  *          If a new password is provided, it is hashed and saved.
@@ -135,12 +154,11 @@ export const getAllUrls = asyncHandler(async (req, res) => {
 export const updatePassword = asyncHandler(async (req, res) => {
   const { urlId } = req.params;
   let { newPassword, confirmPassword } = req.body;
- 
+
   if (newPassword === undefined || confirmPassword === undefined || !urlId) {
     res.status(400);
     throw new Error("All fields are required");
   }
- 
 
   // Trim both inputs
   newPassword = newPassword.trim();
@@ -158,7 +176,7 @@ export const updatePassword = asyncHandler(async (req, res) => {
   }
 
   const isRemovingPassword = newPassword === "";
- 
+
   if (isRemovingPassword) {
     urlData.password = undefined;
     urlData.isPasswordProtected = false;
@@ -176,8 +194,6 @@ export const updatePassword = asyncHandler(async (req, res) => {
       : "Password updated successfully",
   });
 });
-
-
 
 /**
  * @desc    Deletes a shortened URL by its ID.
@@ -205,7 +221,6 @@ export const deleteUrl = asyncHandler(async (req, res) => {
     message: "URL deleted successfully",
   });
 });
-
 
 /**
  * @desc    Toggles the activation status (active/inactive) of a shortened URL by its ID.
@@ -236,7 +251,6 @@ export const changeActivationStatus = asyncHandler(async (req, res) => {
     message: "Activation status updated successfully",
   });
 });
-
 
 /**
  * @desc    Updates the original URL and expiry date of a shortened URL by its ID.
