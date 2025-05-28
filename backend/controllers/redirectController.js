@@ -3,27 +3,9 @@ import ClickLog from "../models/ClickLogModel.js";
 import bcrypt from "bcrypt";
 import { UAParser } from "ua-parser-js";
 
-// More specific bot detection patterns - focusing on actual crawlers and preview generators
-const BOT_PATTERNS = [
-  // Social media crawlers
-  /twitterbot/i,
-  /facebookexternalhit/i,
-  /whatsapp/i,
-  /telegrambot/i,
-  /slackbot/i,
-  /linkedinbot/i,
-  /discordbot/i,
-
-];
-
-// Check if request is from a bot
-const isBot = (userAgent) => {
-  return BOT_PATTERNS.some(pattern => pattern.test(userAgent));
-};
 
 
 
-// Log analytics for real users only
 const logAnalytics = async (shortUrlId, req) => {
   try {
     const parser = new UAParser(req.get("User-Agent"));
@@ -266,7 +248,7 @@ const getErrorHTML = (message, title = "Link Unavailable") => {
 };
 
 // Helper function to find and validate short URL
-const findAndValidateShortUrl = async (code, isBotRequest = false) => {
+const findAndValidateShortUrl = async (code) => {
   const shortUrl = await ShortUrl.findOne({ 
     shortCode: code,
     isActive: true
@@ -277,8 +259,8 @@ const findAndValidateShortUrl = async (code, isBotRequest = false) => {
   }
 
 
-  // Check one-time usage (skip for bots)
-  if (!isBotRequest && shortUrl.isOneTime && shortUrl.hasBeenUsed) {
+  // Check one-time usage
+  if (shortUrl.isOneTime && shortUrl.hasBeenUsed) {
     return { error: 'used', shortUrl };
   }
 
@@ -289,12 +271,9 @@ const findAndValidateShortUrl = async (code, isBotRequest = false) => {
 export const handleGetRequest = async (req, res, next) => {
   try {
     const { code } = req.params;
-    const userAgent = req.get("User-Agent") || "";
-    const isBotRequest = isBot(req);
+   
     
-    console.log(`GET request for ${code} from ${isBotRequest ? 'BOT' : 'USER'}: ${userAgent}`);
-    
-    const { error, shortUrl } = await findAndValidateShortUrl(code, isBotRequest);
+    const { error, shortUrl } = await findAndValidateShortUrl(code);
 
     // If URL doesn't exist, fallback to frontend
     if (error === 'not_found') {
@@ -319,7 +298,7 @@ export const handleGetRequest = async (req, res, next) => {
     
 
     // For non-password protected URLs or bots, redirect directly
-    if (!isBotRequest) {
+   
       // Update analytics for real users
       const updateData = { $inc: { clickCount: 1 } };
       if (shortUrl.isOneTime) {
@@ -330,9 +309,7 @@ export const handleGetRequest = async (req, res, next) => {
       await logAnalytics(shortUrl._id, req);
       
       console.log(`User redirected: ${code} -> ${shortUrl.originalUrl}`);
-    } else {
-      console.log(`Bot preview: ${code} -> ${shortUrl.originalUrl}`);
-    }
+    
 
     return res.redirect(301, shortUrl.originalUrl);
 
@@ -347,17 +324,12 @@ export const handlePostRequest = async (req, res, next) => {
   try {
     const { code } = req.params;
     const { password } = req.body;
-    const userAgent = req.get("User-Agent") || "";
-    const isBotRequest = isBot(req);
     
     console.log(`POST request for ${code} with password attempt`);
 
-    if (isBotRequest) {
-      // Bots shouldn't be making POST requests, redirect to GET
-      return res.redirect(301, `/${code}`);
-    }
+   
 
-    const { error, shortUrl } = await findAndValidateShortUrl(code, isBotRequest);
+    const { error, shortUrl } = await findAndValidateShortUrl(code);
 
     // If URL doesn't exist, fallback to frontend
     if (error === 'not_found') {
