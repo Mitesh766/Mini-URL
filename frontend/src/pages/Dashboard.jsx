@@ -54,7 +54,7 @@ const AnalyticsDashboard = () => {
         const fetchAnalytics = async () => {
             try {
                 setLoading(true);
-                const {data} = await axios.get(`/api/analytics/${urlId}`);
+                const { data } = await axios.get(`/api/analytics/${urlId}`);
                 setAnalyticsData(data);
             } catch (err) {
                 setError(err.message);
@@ -95,7 +95,7 @@ const AnalyticsDashboard = () => {
                     <p className="text-gray-300 mb-4 text-sm sm:text-base">{error}</p>
                     <button
                         onClick={() => window.location.reload()}
-                        className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
+                        className="px-6 py-3 bg-gradient-to-r cursor-pointer from-purple-600 to-pink-600 rounded-full text-white font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
                     >
                         Try Again
                     </button>
@@ -110,35 +110,34 @@ const AnalyticsDashboard = () => {
             <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 -z-10"></div>
 
             {/* Navigation */}
-            <div className="flex flex-row   items-center justify-between mb-8 animate-fade-in-up space-y-0 text-white px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            <div className="flex flex-row   items-center justify-between mb-4 animate-fade-in-up space-y-0 text-white px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
                 <div className="flex items-center space-x-3 sm:space-x-4">
                     <Link to="/my-links">
-                        <button className="p-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 flex-shrink-0">
+                        <button className="p-2 bg-white/10 cursor-pointer backdrop-blur-sm border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 flex-shrink-0">
                             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>
                     </Link>
                     <div className="min-w-0">
                         <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                            Manage URLs
+                            URL Analytics Dashboard
                         </h1>
-                        <p className="text-gray-400 hidden sm:block mt-1 text-sm sm:text-base">Monitor, edit, and control your shortened links</p>
                     </div>
                 </div>
-                <div className="flex items-center space-x-2 flex-shrink-0">
-                    <div className="bg-gradient-to-r from-purple-400 to-pink-400 p-2 rounded-lg">
-                        <LinkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                <Link to="/">
+                    <div className="flex items-center space-x-2 flex-shrink-0">
+                        <div className="bg-gradient-to-r from-purple-400 to-pink-400 p-2 rounded-lg">
+                            <LinkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                        </div>
+                        <span className="text-lg sm:text-2xl font-bold">Minli</span>
                     </div>
-                    <span className="text-lg sm:text-2xl font-bold">Slink</span>
-                </div>
+                </Link>
             </div>
 
 
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
                 {/* Header Section */}
                 <div className="mb-6 sm:mb-8">
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                        URL Analytics Dashboard
-                    </h1>
+
 
                     {/* URL and Date Info */}
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
@@ -149,7 +148,7 @@ const AnalyticsDashboard = () => {
                             </div>
                             <button
                                 onClick={handleCopyUrl}
-                                className="p-1 hover:bg-white/20 rounded transition-colors duration-200 flex-shrink-0"
+                                className="p-1 hover:bg-white/20 cursor-pointer rounded transition-colors duration-200 flex-shrink-0"
                             >
                                 <Copy className={`w-4 h-4 ${copied ? 'text-green-400' : 'text-gray-400'}`} />
                             </button>
@@ -375,7 +374,7 @@ const AnalyticsDashboard = () => {
                             Browser Distribution
                         </h3>
                         <div className="space-y-4">
-                            {analyticsData.browserWise.map((browser, index) => {
+                            {analyticsData.browserWise.map((browser) => {
                                 const percentage = (browser.count / analyticsData.totalClicks) * 100;
                                 return (
                                     <div key={browser._id} className="space-y-3 bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:bg-white/10 transition-all duration-300">

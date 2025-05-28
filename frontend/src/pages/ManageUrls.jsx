@@ -250,7 +250,7 @@ const ManageUrls = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">
-      {isLoading ? <LoadingOverlay isLoading={isLoading} message={"Please wait while getting logged in ."} /> : ""}
+      {isLoading ? <LoadingOverlay isLoading={isLoading} message={"Please wait while loading your URLs ."} /> : ""}
       {errorMessage && <Notification messageType="error" message={errorMessage} onClose={() => setErrorMessage('')} />}
       {successMessage && <Notification messageType="success" message={successMessage} onClose={() => setSuccessMessage('')} />}
       <div>
@@ -260,7 +260,7 @@ const ManageUrls = () => {
             <div className="flex flex-row   items-center justify-between mb-8 animate-fade-in-up space-y-0 text-white">
               <div className="flex items-center space-x-3 sm:space-x-4">
                 <Link to="/">
-                  <button className="p-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 flex-shrink-0">
+                  <button className="p-2 cursor-pointer bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 flex-shrink-0">
                     <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </Link>
@@ -271,12 +271,14 @@ const ManageUrls = () => {
                   <p className="text-gray-400 hidden sm:block mt-1 text-sm sm:text-base">Monitor, edit, and control your shortened links</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-2 flex-shrink-0">
-                <div className="bg-gradient-to-r from-purple-400 to-pink-400 p-2 rounded-lg">
-                  <LinkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+              <Link to="/">
+                <div className="flex items-center cursor-pointer space-x-2 flex-shrink-0">
+                  <div className="bg-gradient-to-r from-purple-400 to-pink-400 p-2 rounded-lg">
+                    <LinkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </div>
+                  <span className="text-lg sm:text-2xl font-bold">Minli</span>
                 </div>
-                <span className="text-lg sm:text-2xl font-bold">Slink</span>
-              </div>
+              </Link>
             </div>
 
 
@@ -298,7 +300,7 @@ const ManageUrls = () => {
                 {/* New URL Button */}
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
                   <Link to='/shorten'>
-                    <button className="px-4 py-2 sm:py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-medium text-white hover:from-purple-700 hover:to-pink-700 transition-all duration-300 flex items-center justify-center space-x-2 text-sm sm:text-base">
+                    <button className="cursor-pointer px-4 py-2 sm:py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-medium text-white hover:from-purple-700 hover:to-pink-700 transition-all duration-300 flex items-center justify-center space-x-2 text-sm sm:text-base">
                       <Plus className="w-4 h-4" />
                       <span>New URL</span>
                     </button>
@@ -365,7 +367,7 @@ const ManageUrls = () => {
                             <span className="text-purple-400 font-mono text-sm break-all">{getShortUrlPath(url.shortUrl)}</span>
                             <button
                               onClick={async () => await handleUrlCopy(url)}
-                              className="p-1 hover:bg-white/10 rounded transition-colors duration-200 flex-shrink-0"
+                              className="p-1 cursor-pointer hover:bg-white/10 rounded transition-colors duration-200 flex-shrink-0"
                             >
                               <Copy className={`w-4 h-4 ${copied ? 'text-green-400' : 'text-gray-400'}`} />
 
@@ -380,7 +382,7 @@ const ManageUrls = () => {
                             <span className="text-gray-300 text-sm break-all">{url.originalUrl}</span>
                             <button
                               onClick={() => window.open(url.originalUrl, '_blank')}
-                              className="p-1 hover:bg-white/10 rounded transition-colors duration-200 flex-shrink-0"
+                              className="p-1 cursor-pointer hover:bg-white/10 rounded transition-colors duration-200 flex-shrink-0"
                             >
                               <ExternalLink className="w-4 h-4 text-gray-400 hover:text-white" />
                             </button>
@@ -410,7 +412,7 @@ const ManageUrls = () => {
                       {/* Edit button */}
                       <button
                         onClick={() => handleEdit(url)}
-                        className="p-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all duration-200"
+                        className="p-2 bg-blue-500/20 cursor-pointer text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all duration-200"
                         title="Edit"
                       >
                         <Edit3 className="w-4 h-4" />
@@ -422,7 +424,7 @@ const ManageUrls = () => {
                           setSelectedUrl(url);
                           setShowQrModal(true);
                         }}
-                        className="p-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-all duration-200"
+                        className="p-2 cursor-pointer bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-all duration-200"
                         title="QR Code"
                       >
                         <QrCode className="w-4 h-4" />
@@ -431,7 +433,7 @@ const ManageUrls = () => {
                       {/* DashBoard button */}
                       <Link to={`/analytics/${url._id}`}>
                         <button
-                          className="p-2 bg-purple-500/20 text-purple-400 rounded-lg hover:bg-purple-500/30 transition-all duration-200"
+                          className="p-2 cursor-pointer bg-purple-500/20 text-purple-400 rounded-lg hover:bg-purple-500/30 transition-all duration-200"
                           title="Statistics"
                         >
                           <BarChart3 className="w-4 h-4" />
@@ -442,7 +444,7 @@ const ManageUrls = () => {
                       {/* Password Management */}
                       <button
                         onClick={() => handlePasswordChange(url)}
-                        className="p-2 bg-yellow-500/20 text-yellow-400 rounded-lg hover:bg-yellow-500/30 transition-all duration-200"
+                        className="p-2 bg-yellow-500/20 cursor-pointer text-yellow-400 rounded-lg hover:bg-yellow-500/30 transition-all duration-200"
                         title="Change Password"
                       >
                         <Lock className="w-4 h-4" />
@@ -455,7 +457,7 @@ const ManageUrls = () => {
                           setSelectedUrl(url)
                           setShowStatusModal(true)
                         }}
-                        className={`p-2 rounded-lg transition-all duration-200 ${url.isActive
+                        className={`p-2 rounded-lg cursor-pointer transition-all duration-200 ${url.isActive
                           ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
                           : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
                           }`}
@@ -471,7 +473,7 @@ const ManageUrls = () => {
                           setShowDeleteModal(true)
                           setSelectedUrl(url)
                         }}
-                        className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all duration-200"
+                        className="p-2 bg-red-500/20 cursor-pointer text-red-400 rounded-lg hover:bg-red-500/30 transition-all duration-200"
                         title="Delete"
                       >
                         <Trash2 className="w-4 h-4" />

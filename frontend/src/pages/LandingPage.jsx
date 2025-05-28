@@ -1,11 +1,11 @@
 import axios from 'axios';
-import { Link as LinkIcon, ExternalLink, BarChart3, Zap, Shield, Globe,Settings,QrCode,Lock,Clock,Eye } from 'lucide-react';
+import { Link as LinkIcon, ExternalLink, BarChart3, Zap, Shield, Globe, Settings, QrCode, Lock, Clock, Eye } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from "react-router-dom"
 import { addUserData, setLogin } from '../redux/userSlice';
 import { USERS_URL } from '../utils/constants';
 import { useState } from 'react';
-import Notification from '../components/Notification';
+
 const LandingPage = () => {
     const dispatch = useDispatch();
     const isLoggedIn = useSelector(store => store.user.isLoggedIn);
@@ -41,20 +41,22 @@ const LandingPage = () => {
             {/* Navigation */}
             <nav className="relative z-10 px-6 py-4 backdrop-blur-sm bg-white/5 border-b border-white/10">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-gradient-to-r from-purple-400 to-pink-400 p-2 rounded-xl shadow-lg">
-                            <LinkIcon className="w-6 h-6" />
+                    <Link to="/">
+                        <div className="flex items-center space-x-3">
+                            <div className="bg-gradient-to-r from-purple-400 to-pink-400 p-2 rounded-xl shadow-lg">
+                                <LinkIcon className="w-6 h-6" />
+                            </div>
+                            <span className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                                Minli
+                            </span>
                         </div>
-                        <span className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                            Minli
-                        </span>
-                    </div>
+                    </Link>
                     <div className="hidden md:flex space-x-8 items-center">
                         <Link to="/contact" className="hover:text-purple-300 transition-all duration-300 hover:scale-105">
                             Contact Us
                         </Link>
                         <button
-                            onClick={isLoggedIn ? handleLogout : () => {navigate("/login")}}
+                            onClick={isLoggedIn ? handleLogout : () => { navigate("/login") }}
                             className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full cursor-pointer  hover:from-purple-700 hover:to-pink-700 transition-all duration-300 hover:scale-105 shadow-lg"
                         >
                             {isLoggedIn ? "Logout" : "Login"}

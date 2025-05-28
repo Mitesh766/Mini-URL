@@ -135,7 +135,7 @@ const Login = () => {
             setErrorMessage("Already logged in ");
             const timer = setTimeout(() => {
                 navigate("/", { replace: true })
-            }, 1000)
+            }, 1500)
             return () => clearTimeout(timer)
         }
     }, [isLoggedIn,navigate])

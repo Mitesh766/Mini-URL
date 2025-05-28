@@ -184,7 +184,7 @@ const UrlGenerator = () => {
                 <div className="flex flex-row   items-center justify-between mb-8 animate-fade-in-up space-y-0">
                     <div className="flex items-center space-x-3 sm:space-x-4">
                         <Link to="/">
-                            <button className="p-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 flex-shrink-0">
+                            <button className="p- cursor-pointer bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 flex-shrink-0">
                                 <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                             </button>
                         </Link>
