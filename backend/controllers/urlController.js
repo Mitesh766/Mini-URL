@@ -135,11 +135,12 @@ export const getAllUrls = asyncHandler(async (req, res) => {
 export const updatePassword = asyncHandler(async (req, res) => {
   const { urlId } = req.params;
   let { newPassword, confirmPassword } = req.body;
-
+  console.log("First")
   if (newPassword === undefined || confirmPassword === undefined || !urlId) {
     res.status(400);
     throw new Error("All fields are required");
   }
+  console.log("Second")
 
   // Trim both inputs
   newPassword = newPassword.trim();
@@ -157,7 +158,7 @@ export const updatePassword = asyncHandler(async (req, res) => {
   }
 
   const isRemovingPassword = newPassword === "";
-
+  console.log(isRemovingPassword)
   if (isRemovingPassword) {
     urlData.password = undefined;
     urlData.isPasswordProtected = false;

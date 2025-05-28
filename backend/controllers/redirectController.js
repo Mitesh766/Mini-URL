@@ -288,7 +288,6 @@ export const redirectHandler = async (req, res, next) => {
       return next(); // This will serve your static frontend
     }
 
-    
 
     // Check one-time usage (skip for bots)
     if (shortUrl.isOneTime && shortUrl.hasBeenUsed) {
@@ -296,7 +295,7 @@ export const redirectHandler = async (req, res, next) => {
     }
 
     // Handle password protection (bots skip for previews)
-    if (!isBotRequest && shortUrl.isPasswordProtected) {
+    if (shortUrl.isPasswordProtected) {
       // No password provided - show password input form
       if (!password) {
         return res.send(getPasswordInputHTML(code, shortUrl.title));
@@ -315,7 +314,7 @@ export const redirectHandler = async (req, res, next) => {
       const updateData = { $inc: { clickCount: 1 } };
       if (shortUrl.isOneTime) {
         updateData.hasBeenUsed = true;
-        
+
       }
 
       
