@@ -4,7 +4,7 @@ import "dotenv/config";
 import connectDB from "./config/db.js";
 import userRouter from "./routes/userRoutes.js";
 import urlRouter from "./routes/urlRoutes.js";
-import { redirectHandler} from "./controllers/redirectController.js";
+import { handleGetRequest, handlePostRequest } from './controllers/redirectController.js';
 import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
