@@ -18,11 +18,19 @@ app.use(express.static(path.join(__dirname, "dist")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+app.use((req, res, next) => {
+  res.set({
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+    'Surrogate-Control': 'no-store'
+  });
+  next();
+});
+
 
 app.use("/api/user", userRouter);
 app.use("/api/url", urlRouter);
-
-
 
 
 // Handle GET requests (initial visits)
@@ -30,6 +38,7 @@ app.get('/:code', handleGetRequest);
 
 // Handle POST requests (password submissions)
 app.post('/:code', handlePostRequest);
+
 
 // Handle short URL redirects - but exclude common React routes and API routes
 // app.get("/:code", (req, res, next) => {

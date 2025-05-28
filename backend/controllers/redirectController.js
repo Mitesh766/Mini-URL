@@ -76,7 +76,7 @@ const getPasswordInputHTML = (code, title, error = null) => {
             
             .subtitle {
                 color: #666;
-                margin-bottom: 30px;
+                margin-bottom: 302x;
                 font-size: 14px;
             }
             
@@ -271,8 +271,7 @@ const findAndValidateShortUrl = async (code) => {
 export const handleGetRequest = async (req, res, next) => {
   try {
     const { code } = req.params;
-   
-    
+  
     const { error, shortUrl } = await findAndValidateShortUrl(code);
 
     // If URL doesn't exist, fallback to frontend
@@ -311,7 +310,7 @@ export const handleGetRequest = async (req, res, next) => {
       console.log(`User redirected: ${code} -> ${shortUrl.originalUrl}`);
     
 
-    return res.redirect(301, shortUrl.originalUrl);
+    return res.redirect(302, shortUrl.originalUrl);
 
   } catch (error) {
     console.error("GET redirect error:", error);
@@ -347,7 +346,7 @@ export const handlePostRequest = async (req, res, next) => {
 
     // If not password protected, redirect to GET
     if (!shortUrl.isPasswordProtected) {
-      return res.redirect(301, `/${code}`);
+      return res.redirect(302, `/${code}`);
     }
 
     // Check if password was provided
@@ -372,7 +371,7 @@ export const handlePostRequest = async (req, res, next) => {
     
     console.log(`User authenticated and redirected: ${code} -> ${shortUrl.originalUrl}`);
 
-    return res.redirect(301, shortUrl.originalUrl);
+    return res.redirect(302, shortUrl.originalUrl);
 
   } catch (error) {
     console.error("POST redirect error:", error);
