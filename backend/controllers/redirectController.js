@@ -3,9 +3,116 @@ import ClickLog from "../models/ClickLogModel.js";
 import bcrypt from "bcrypt";
 import { UAParser } from "ua-parser-js";
 
+// More specific bot detection patterns - focusing on actual crawlers and preview generators
+const BOT_PATTERNS = [
+  // Social media crawlers
+  /twitterbot/i,
+  /facebookexternalhit/i,
+  /whatsapp/i,
+  /telegrambot/i,
+  /slackbot/i,
+  /linkedinbot/i,
+  /discordbot/i,
+  
+  // Search engine crawlers
+  /googlebot/i,
+  /bingbot/i,
+  /yandexbot/i,
+  /baiduspider/i,
+  
+  // Generic crawler patterns (more specific)
+  /crawler/i,
+  /spider/i,
+  /scraper/i,
+  
+  // Preview generators
+  /preview/i,
+  /unfurl/i,
+  /thumbnail/i,
+  
+  // Specific bot names (avoid generic "bot" pattern)
+  /applebot/i,
+  /amazonbot/i,
+  /duckduckbot/i,
+  /msnbot/i,
+  /slurp/i, // Yahoo bot
+  
+  // Headless browsers often used by bots
+  /headlesschrome/i,
+  /phantomjs/i,
+  /selenium/i,
+  
+  // Monitoring services
+  /uptimerobot/i,
+  /pingdom/i,
+  /statuspage/i,
+];
 
+// Check if request is from a bot
+const isBot = (userAgent) => {
+  if (!userAgent) return false;
+  
+  // Convert to lowercase for easier matching
+  const ua = userAgent.toLowerCase();
+  
+  // First check if it's a known legitimate browser (including mobile browsers)
+  // These patterns indicate real browsers, not bots
+  const browserPatterns = [
+    /chrome\/\d+/,
+    /firefox\/\d+/,
+    /safari\/\d+/,
+    /edge\/\d+/,
+    /opera\/\d+/,
+    // Mobile browser patterns
+    /mobile safari/,
+    /chrome mobile/,
+    /firefox mobile/,
+    /samsung browser/,
+    /miuibrowser/,
+    /ucbrowser/,
+    // iOS browsers
+    /crios\/\d+/, // Chrome on iOS
+    /fxios\/\d+/, // Firefox on iOS
+    /version\/[\d.]+ mobile.*safari/, // Mobile Safari
+    // Android browsers
+    /android.*chrome/,
+    /android.*firefox/,
+    /android.*safari/,
+  ];
+  
 
+// Enhanced bot detection with additional checks
+const isLikelyBot = (req) => {
+  const userAgent = req.get("User-Agent") || "";
+  
+  // Check user agent
+  if (isBot(userAgent)) {
+    return true;
+  }
+  
+  // Additional checks for headless browsers or automation
+  const headers = req.headers;
+  
+  // Check for missing headers that real browsers usually have
+  const browserHeaders = ['accept', 'accept-language', 'accept-encoding'];
+  const missingHeaders = browserHeaders.filter(header => !headers[header]);
+  
+  // If missing too many browser headers, might be a bot
+  if (missingHeaders.length >= 2) {
+    return true;
+  }
+  
+  // Check for automation indicators in headers
+  if (headers['x-requested-with'] || 
+      headers['x-automation'] || 
+      headers['webdriver']) {
+    return true;
+  }
+  
+  return false;
+};
 
+// Log analytics for real users only
 const logAnalytics = async (shortUrlId, req) => {
   try {
     const parser = new UAParser(req.get("User-Agent"));
@@ -76,7 +183,7 @@ const getPasswordInputHTML = (code, title, error = null) => {
             
             .subtitle {
                 color: #666;
-                margin-bottom: 302x;
+                margin-bottom: 30px;
                 font-size: 14px;
             }
             
@@ -248,7 +355,7 @@ const getErrorHTML = (message, title = "Link Unavailable") => {
 };
 
 // Helper function to find and validate short URL
-const findAndValidateShortUrl = async (code) => {
+const findAndValidateShortUrl = async (code, isBotRequest = false) => {
   const shortUrl = await ShortUrl.findOne({ 
     shortCode: code,
     isActive: true
@@ -258,9 +365,13 @@ const findAndValidateShortUrl = async (code) => {
     return { error: 'not_found', shortUrl: null };
   }
 
+  // Check expiration (skip for bots to allow previews)
+  if (!isBotRequest && shortUrl.expiresAt && new Date() > shortUrl.expiresAt) {
+    return { error: 'expired', shortUrl };
+  }
 
-  // Check one-time usage
-  if (shortUrl.isOneTime && shortUrl.hasBeenUsed) {
+  // Check one-time usage (skip for bots)
+  if (!isBotRequest && shortUrl.isOneTime && shortUrl.hasBeenUsed) {
     return { error: 'used', shortUrl };
   }
 
@@ -271,8 +382,12 @@ const findAndValidateShortUrl = async (code) => {
 export const handleGetRequest = async (req, res, next) => {
   try {
     const { code } = req.params;
-  
-    const { error, shortUrl } = await findAndValidateShortUrl(code);
+    const userAgent = req.get("User-Agent") || "";
+    const isBotRequest = isLikelyBot(req);
+    
+    console.log(`GET request for ${code} from ${isBotRequest ? 'BOT' : 'USER'}: ${userAgent}`);
+    
+    const { error, shortUrl } = await findAndValidateShortUrl(code, isBotRequest);
 
     // If URL doesn't exist, fallback to frontend
     if (error === 'not_found') {
@@ -280,7 +395,7 @@ export const handleGetRequest = async (req, res, next) => {
     }
 
     // Handle errors for non-bot requests
-    
+    if (!isBotRequest) {
       if (error === 'expired') {
         return res.send(getErrorHTML("This link has expired and is no longer accessible.", "Link Expired"));
       }
@@ -293,11 +408,10 @@ export const handleGetRequest = async (req, res, next) => {
       if (shortUrl.isPasswordProtected) {
         return res.send(getPasswordInputHTML(code, shortUrl.title));
       }
-
-    
+    }
 
     // For non-password protected URLs or bots, redirect directly
-   
+    if (!isBotRequest) {
       // Update analytics for real users
       const updateData = { $inc: { clickCount: 1 } };
       if (shortUrl.isOneTime) {
@@ -308,9 +422,11 @@ export const handleGetRequest = async (req, res, next) => {
       await logAnalytics(shortUrl._id, req);
       
       console.log(`User redirected: ${code} -> ${shortUrl.originalUrl}`);
-    
+    } else {
+      console.log(`Bot preview: ${code} -> ${shortUrl.originalUrl}`);
+    }
 
-    return res.redirect(302, shortUrl.originalUrl);
+    return res.redirect(301, shortUrl.originalUrl);
 
   } catch (error) {
     console.error("GET redirect error:", error);
@@ -323,12 +439,17 @@ export const handlePostRequest = async (req, res, next) => {
   try {
     const { code } = req.params;
     const { password } = req.body;
+    const userAgent = req.get("User-Agent") || "";
+    const isBotRequest = isLikelyBot(req);
     
     console.log(`POST request for ${code} with password attempt`);
 
-   
+    if (isBotRequest) {
+      // Bots shouldn't be making POST requests, redirect to GET
+      return res.redirect(301, `/${code}`);
+    }
 
-    const { error, shortUrl } = await findAndValidateShortUrl(code);
+    const { error, shortUrl } = await findAndValidateShortUrl(code, isBotRequest);
 
     // If URL doesn't exist, fallback to frontend
     if (error === 'not_found') {
@@ -346,7 +467,7 @@ export const handlePostRequest = async (req, res, next) => {
 
     // If not password protected, redirect to GET
     if (!shortUrl.isPasswordProtected) {
-      return res.redirect(302, `/${code}`);
+      return res.redirect(301, `/${code}`);
     }
 
     // Check if password was provided
@@ -371,7 +492,7 @@ export const handlePostRequest = async (req, res, next) => {
     
     console.log(`User authenticated and redirected: ${code} -> ${shortUrl.originalUrl}`);
 
-    return res.redirect(302, shortUrl.originalUrl);
+    return res.redirect(301, shortUrl.originalUrl);
 
   } catch (error) {
     console.error("POST redirect error:", error);
