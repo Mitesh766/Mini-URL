@@ -269,58 +269,71 @@ const getErrorHTML = (message, title = "Link Unavailable") => {
   `;
 };
 
-// Main redirect handler
-export const redirectHandler = async (req, res, next) => {
+// Helper function to find and validate short URL
+const findAndValidateShortUrl = async (code, isBotRequest = false) => {
+  const shortUrl = await ShortUrl.findOne({ 
+    shortCode: code,
+    isActive: true
+  });
+
+  if (!shortUrl) {
+    return { error: 'not_found', shortUrl: null };
+  }
+
+  // Check expiration (skip for bots to allow previews)
+  if (!isBotRequest && shortUrl.expiresAt && new Date() > shortUrl.expiresAt) {
+    return { error: 'expired', shortUrl };
+  }
+
+  // Check one-time usage (skip for bots)
+  if (!isBotRequest && shortUrl.isOneTime && shortUrl.hasBeenUsed) {
+    return { error: 'used', shortUrl };
+  }
+
+  return { error: null, shortUrl };
+};
+
+// Handle GET requests - show password form or redirect
+export const handleGetRequest = async (req, res, next) => {
   try {
     const { code } = req.params;
-    const { password } = req.body;
     const userAgent = req.get("User-Agent") || "";
     const isBotRequest = isBot(userAgent);
     
-    // Find the short URL
-    const shortUrl = await ShortUrl.findOne({ 
-      shortCode: code,
-      isActive: true
-    });
+    console.log(`GET request for ${code} from ${isBotRequest ? 'BOT' : 'USER'}: ${userAgent}`);
+    
+    const { error, shortUrl } = await findAndValidateShortUrl(code, isBotRequest);
 
     // If URL doesn't exist, fallback to frontend
-    if (!shortUrl) {
-      return next(); // This will serve your static frontend
+    if (error === 'not_found') {
+      return next();
     }
 
+    // Handle errors for non-bot requests
+    if (!isBotRequest) {
+      if (error === 'expired') {
+        return res.send(getErrorHTML("This link has expired and is no longer accessible.", "Link Expired"));
+      }
+      
+      if (error === 'used') {
+        return res.send(getErrorHTML("This one-time link has already been used and cannot be accessed again.", "Link Already Used"));
+      }
 
-    // Check one-time usage (skip for bots)
-    if (shortUrl.isOneTime && shortUrl.hasBeenUsed) {
-      return res.send(getErrorHTML("This one-time link has already been used and cannot be accessed again.", "Link Already Used"));
-    }
-
-    // Handle password protection (bots skip for previews)
-    if (shortUrl.isPasswordProtected) {
-      // No password provided - show password input form
-      if (!password) {
+      // If password protected, show password form
+      if (shortUrl.isPasswordProtected) {
         return res.send(getPasswordInputHTML(code, shortUrl.title));
       }
-
-      // Verify password
-      const isValid = await bcrypt.compare(password, shortUrl.password);
-      if (!isValid) {
-        return res.send(getPasswordInputHTML(code, shortUrl.title, "Incorrect password. Please try again."));
-      }
     }
 
-    // Update analytics only for real users (not bots)
+    // For non-password protected URLs or bots, redirect directly
     if (!isBotRequest) {
-      // Update click count and usage status
+      // Update analytics for real users
       const updateData = { $inc: { clickCount: 1 } };
       if (shortUrl.isOneTime) {
         updateData.hasBeenUsed = true;
-
       }
-
       
       await ShortUrl.findByIdAndUpdate(shortUrl._id, updateData);
-      
-      // Log detailed analytics
       await logAnalytics(shortUrl._id, req);
       
       console.log(`User redirected: ${code} -> ${shortUrl.originalUrl}`);
@@ -328,11 +341,76 @@ export const redirectHandler = async (req, res, next) => {
       console.log(`Bot preview: ${code} -> ${shortUrl.originalUrl}`);
     }
 
-    // Direct redirect for all valid requests
     return res.redirect(301, shortUrl.originalUrl);
 
   } catch (error) {
-    console.error("Redirect error:", error);
+    console.error("GET redirect error:", error);
+    return res.send(getErrorHTML("An unexpected error occurred. Please try again later.", "Server Error"));
+  }
+};
+
+// Handle POST requests - password verification
+export const handlePostRequest = async (req, res, next) => {
+  try {
+    const { code } = req.params;
+    const { password } = req.body;
+    const userAgent = req.get("User-Agent") || "";
+    const isBotRequest = isBot(userAgent);
+    
+    console.log(`POST request for ${code} with password attempt`);
+
+    if (isBotRequest) {
+      // Bots shouldn't be making POST requests, redirect to GET
+      return res.redirect(301, `/${code}`);
+    }
+
+    const { error, shortUrl } = await findAndValidateShortUrl(code, isBotRequest);
+
+    // If URL doesn't exist, fallback to frontend
+    if (error === 'not_found') {
+      return next();
+    }
+
+    // Handle errors
+    if (error === 'expired') {
+      return res.send(getErrorHTML("This link has expired and is no longer accessible.", "Link Expired"));
+    }
+    
+    if (error === 'used') {
+      return res.send(getErrorHTML("This one-time link has already been used and cannot be accessed again.", "Link Already Used"));
+    }
+
+    // If not password protected, redirect to GET
+    if (!shortUrl.isPasswordProtected) {
+      return res.redirect(301, `/${code}`);
+    }
+
+    // Check if password was provided
+    if (!password || password.trim() === '') {
+      return res.send(getPasswordInputHTML(code, shortUrl.title, "Password is required."));
+    }
+
+    // Verify password
+    const isValid = await bcrypt.compare(password, shortUrl.password);
+    if (!isValid) {
+      return res.send(getPasswordInputHTML(code, shortUrl.title, "Incorrect password. Please try again."));
+    }
+
+    // Password is correct, update analytics and redirect
+    const updateData = { $inc: { clickCount: 1 } };
+    if (shortUrl.isOneTime) {
+      updateData.hasBeenUsed = true;
+    }
+    
+    await ShortUrl.findByIdAndUpdate(shortUrl._id, updateData);
+    await logAnalytics(shortUrl._id, req);
+    
+    console.log(`User authenticated and redirected: ${code} -> ${shortUrl.originalUrl}`);
+
+    return res.redirect(301, shortUrl.originalUrl);
+
+  } catch (error) {
+    console.error("POST redirect error:", error);
     return res.send(getErrorHTML("An unexpected error occurred. Please try again later.", "Server Error"));
   }
 };
