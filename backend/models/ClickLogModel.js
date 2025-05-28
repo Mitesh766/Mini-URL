@@ -15,7 +15,6 @@ const ClickLogSchema = new mongoose.Schema({
   browser: String,
   os: String,
   deviceType: String,
-  country: String,
 });
 
 ClickLogSchema.index({ shortUrlId: 1, timestamp: 1 });

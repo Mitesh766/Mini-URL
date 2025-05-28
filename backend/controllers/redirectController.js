@@ -129,7 +129,7 @@ const logAnalytics = async (shortUrlId, req) => {
       browser: result.browser.name || "Unknown",
       os: result.os.name || "Unknown",
       deviceType: result.device.type || "desktop",
-      country: "Unknown" // Add IP geolocation service if needed
+      
     });
     
     await clickLog.save();
@@ -454,7 +454,7 @@ export const handlePostRequest = async (req, res, next) => {
     console.log(`POST request for ${code} with password attempt`);
 
     if (isBotRequest) {
-      // Bots shouldn't be making POST requests, redirect to GET
+  
       return res.redirect(302, `/${code}`);
     }
 
