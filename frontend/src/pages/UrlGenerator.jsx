@@ -141,7 +141,7 @@ const UrlGenerator = () => {
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);
             } catch (err) {
-                console.error('Copy failed:', err);
+                setError("Copy failed")
             }
         }
     };
@@ -168,7 +168,7 @@ const UrlGenerator = () => {
             const timer = setTimeout(() => {
                 if (!isLoggedIn) {
                     setError("Please Login");
-                    console.log("Not true in generator ")
+                   
                     navigate("/login", { replace: true })
                 }
             }, 1500)

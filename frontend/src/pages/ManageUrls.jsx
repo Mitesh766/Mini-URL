@@ -242,7 +242,6 @@ const ManageUrls = () => {
       setSuccessMessage("URL copied to clipboard");
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
-      console.error("Failed to copy:", err);
       setErrorMessage("Failed to copy URL");
     }
   }

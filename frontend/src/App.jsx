@@ -25,7 +25,7 @@ const App = () => {
         await axios.get(`${USERS_URL}/verifyLogin`, { withCredentials: true })
         dispatch(setLogin(true))
       } catch (err) {
-        console.log(err)
+        // console.log(err)
       }
     }
     verifyLoggedIn()
