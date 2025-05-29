@@ -310,7 +310,8 @@ const ManageUrls = () => {
 
             {/* URLs Grid */}
             <div className="space-y-4 sm:space-y-6 animate-fade-in-up animation-delay-400">
-              {filteredUrls.map((url, index) => (
+              {filteredUrls.filter(url=>!(url.isOneTime && url.hasBeenUsed)).map((url, index) => (
+
                 <div
                   key={url._id}
                   className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-4 sm:p-6 hover:bg-white/15 transition-all duration-300"

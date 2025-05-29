@@ -39,8 +39,6 @@ const AnalyticsDashboard = () => {
         });
     };
 
-
-
     // Helper function to format chart date labels in IST
     const formatChartDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-IN', {
@@ -71,7 +69,7 @@ const AnalyticsDashboard = () => {
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const chartColors = ['#34D399', '#FBBF24', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#f97316'];
+    const chartColors = ['#34D399', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#f97316'];
 
     if (loading) {
         return (
@@ -110,21 +108,21 @@ const AnalyticsDashboard = () => {
             <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 -z-10"></div>
 
             {/* Navigation */}
-            <div className="flex flex-row   items-center justify-between mb-4 animate-fade-in-up space-y-0 text-white px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-                <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="flex flex-row items-center justify-between mb-4  animate-fade-in-up space-y-0 text-white px-4  py-8">
+                <div className="flex items-center space-x-3 sm:space-x-4 w-full sm:w-auto">
                     <Link to="/my-links">
                         <button className="p-2 bg-white/10 cursor-pointer backdrop-blur-sm border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 flex-shrink-0">
                             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>
                     </Link>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                         <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                             URL Analytics Dashboard
                         </h1>
                     </div>
                 </div>
-                <Link to="/">
-                    <div className="flex items-center space-x-2 flex-shrink-0">
+                <Link to="/" className="flex-shrink-0">
+                    <div className="flex items-center space-x-2">
                         <div className="bg-gradient-to-r from-purple-400 to-pink-400 p-2 rounded-lg">
                             <LinkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                         </div>
@@ -133,28 +131,25 @@ const AnalyticsDashboard = () => {
                 </Link>
             </div>
 
-
-            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8">
                 {/* Header Section */}
                 <div className="mb-6 sm:mb-8">
-
-
                     {/* URL and Date Info */}
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
-                        <div className="flex items-center justify-between sm:justify-start space-x-2 bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-full px-4 py-3 sm:py-2 border border-white/20">
+                    <div className="flex flex-col gap-4 mb-4">
+                        <div className="flex items-center justify-between bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
                             <div className="flex items-center space-x-2 min-w-0 flex-1">
                                 <span className="text-gray-300 text-sm sm:text-base whitespace-nowrap">Short URL:</span>
                                 <span className="text-white font-mono text-sm sm:text-base truncate">{`minli.info/${analyticsData.shortUrl.shortCode}`}</span>
                             </div>
                             <button
                                 onClick={handleCopyUrl}
-                                className="p-1 hover:bg-white/20 cursor-pointer rounded transition-colors duration-200 flex-shrink-0"
+                                className="p-1 hover:bg-white/20 cursor-pointer rounded transition-colors duration-200 flex-shrink-0 ml-2"
                             >
                                 <Copy className={`w-4 h-4 ${copied ? 'text-green-400' : 'text-gray-400'}`} />
                             </button>
                         </div>
 
-                        <div className="text-gray-400 text-sm sm:text-base bg-white/5 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10 sm:bg-transparent sm:border-none sm:px-0 sm:py-0">
+                        <div className="text-gray-400 text-sm sm:text-base bg-white/5 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
                             Created: {formatDate(analyticsData.createdAt)} IST
                         </div>
                     </div>
@@ -311,66 +306,84 @@ const AnalyticsDashboard = () => {
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8">
                     {/* Device Distribution */}
                     <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
-                        <h3 className="text-lg sm:text-xl font-bold mb-4 bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
+                        <h3 className="text-lg sm:text-xl font-bold mb-6 bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
                             Device Distribution
                         </h3>
-                        <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-                            <div className="h-48 sm:h-60 w-full max-w-s p-4">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={analyticsData.deviceWise}
-                                            cx="50%"
-                                            cy="50%"
-                                            outerRadius="75%"
-                                            fill="#8884d8"
-                                            dataKey="count"
-                                            label={({ _id, percent }) => `${_id} ${(percent * 100).toFixed(0)}%`}
-                                            labelLine={false}
-                                        >
-                                            {analyticsData.deviceWise.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip
-                                            contentStyle={{
-                                                backgroundColor: 'rgba(30, 41, 59, 0.95)',
-                                                border: '1px solid rgba(255, 255, 255, 0.2)',
-                                                borderRadius: '12px',
-                                                color: 'white',
-                                                fontSize: '14px'
-                                            }}
-                                        />
-                                    </PieChart>
-                                </ResponsiveContainer>
+
+                        {/* Mobile-first: Stack chart and legend vertically */}
+                        <div className="flex flex-col space-y-6">
+                            {/* Pie Chart Container with proper padding for labels */}
+                            <div className="w-full flex justify-center">
+                                <div className="h-64 w-64 sm:h-72 sm:w-72 md:h-80 md:w-80">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                                            <Pie
+                                                data={analyticsData.deviceWise}
+                                                cx="50%"
+                                                cy="50%"
+                                                outerRadius="65%"
+                                                innerRadius="20%"
+                                                fill="#8884d8"
+                                                dataKey="count"
+                                                label={false}
+                                            >
+                                                {analyticsData.deviceWise.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip
+                                                contentStyle={{
+                                                    backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                                                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                                                    borderRadius: '12px',
+                                                    color: 'white',
+                                                    fontSize: '14px'
+                                                }}
+                                                formatter={(value) => [`${value} clicks`]} // formats the value
+                                                labelFormatter={(label, payload) => {
+                                                    const entry = payload[0];
+                                                    return entry?.payload?._id || '';
+                                                }}
+                                            />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
                             </div>
-                            <div className="space-y-4 w-full lg:w-auto">
-                                {analyticsData.deviceWise.map((device, index) => (
-                                    <div key={device._id} className="flex items-center justify-between lg:justify-start space-x-3 bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10">
-                                        <div className="flex items-center space-x-3">
-                                            {device._id === 'mobile' ? (
-                                                <Smartphone className="w-5 h-5 text-purple-400" />
-                                            ) : (
-                                                <Monitor className="w-5 h-5 text-blue-400" />
-                                            )}
-                                            <div>
-                                                <p className="text-white font-semibold text-sm sm:text-base">{device._id}</p>
-                                                <p className="text-gray-400 text-xs sm:text-sm">{device.count.toLocaleString()} clicks</p>
+
+                            {/* Legend/Stats Below Chart */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {analyticsData.deviceWise.map((device, index) => {
+                                    const percentage = (device.count / analyticsData.totalClicks) * 100;
+                                    return (
+                                        <div key={device._id} className="flex items-center justify-between bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:bg-white/10 transition-all duration-300">
+                                            <div className="flex items-center space-x-3">
+                                                {device._id === 'mobile' ? (
+                                                    <Smartphone className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                                                ) : (
+                                                    <Monitor className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                                                )}
+                                                <div className="min-w-0">
+                                                    <p className="text-white font-semibold text-sm sm:text-base capitalize">{device._id}</p>
+                                                    <p className="text-gray-400 text-xs sm:text-sm">{device.count.toLocaleString()} clicks</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center space-x-2 flex-shrink-0">
+                                                <span className="text-white font-semibold text-sm">{percentage.toFixed(1)}%</span>
+                                                <div
+                                                    className="w-3 h-3 rounded-full"
+                                                    style={{ backgroundColor: chartColors[index % chartColors.length] }}
+                                                ></div>
                                             </div>
                                         </div>
-                                        <div
-                                            className="w-3 h-3 rounded-full flex-shrink-0"
-                                            style={{ backgroundColor: chartColors[index % chartColors.length] }}
-                                        ></div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
 
                     {/* Browser Distribution */}
                     <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
-                        <h3 className="text-lg sm:text-xl font-bold mb-4 bg-gradient-to-r from-pink-400 to-orange-400 bg-clip-text text-transparent">
+                        <h3 className="text-lg sm:text-xl font-bold mb-6 bg-gradient-to-r from-pink-400 to-orange-400 bg-clip-text text-transparent">
                             Browser Distribution
                         </h3>
                         <div className="space-y-4">
@@ -379,13 +392,15 @@ const AnalyticsDashboard = () => {
                                 return (
                                     <div key={browser._id} className="space-y-3 bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:bg-white/10 transition-all duration-300">
                                         <div className="flex items-center justify-between">
-                                            <div className="flex items-center space-x-3">
+                                            <div className="flex items-center space-x-3 min-w-0 flex-1">
                                                 <Globe className="w-4 h-4 text-gray-400 flex-shrink-0" />
                                                 <span className="text-white font-semibold text-sm sm:text-base truncate">{browser._id}</span>
                                             </div>
-                                            <div className="text-right flex-shrink-0">
-                                                <span className="text-white font-semibold text-sm sm:text-base">{browser.count.toLocaleString()}</span>
-                                                <span className="text-gray-400 text-xs sm:text-sm ml-2">({percentage.toFixed(1)}%)</span>
+                                            <div className="text-right flex-shrink-0 ml-4">
+                                                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
+                                                    <span className="text-white font-semibold text-sm sm:text-base">{browser.count.toLocaleString()}</span>
+                                                    <span className="text-gray-400 text-xs sm:text-sm">({percentage.toFixed(1)}%)</span>
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="w-full bg-gray-700 rounded-full h-2">

@@ -342,7 +342,7 @@ const UrlGenerator = () => {
                                     value={formData.title}
                                     onChange={handleInputChange}
                                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 text-sm sm:text-base"
-                                    placeholder="My Photo Link"
+                                    placeholder="URL Title"
                                     required
                                 />
                             </div>
