@@ -5,16 +5,19 @@ import { Link, useNavigate } from "react-router-dom"
 import { addUserData, setLogin } from '../redux/userSlice';
 import { USERS_URL } from '../utils/constants';
 import { useState } from 'react';
+import Notification from '../components/Notification';
 
 const LandingPage = () => {
     const dispatch = useDispatch();
     const isLoggedIn = useSelector(store => store.user.isLoggedIn);
     const navigate = useNavigate()
     const [errorMessage, setErrorMessage] = useState('')
+    const [successMessage, setSuccessMessage] = useState('')
 
     const handleLogout = async () => {
         try {
             await axios.post(`${USERS_URL}/logout`, {}, { withCredentials: true })
+            setSuccessMessage("Successfully loged out")
             dispatch(setLogin(false))
             dispatch(addUserData(null))
         }
@@ -32,11 +35,8 @@ const LandingPage = () => {
             </div>
 
             {/* Error notification placeholder */}
-            {errorMessage && (
-                <div className="fixed top-4 right-4 z-50 bg-red-500/20 border border-red-500/50 text-red-100 px-4 py-2 rounded-lg backdrop-blur-sm">
-                    {errorMessage}
-                </div>
-            )}
+            {errorMessage && (<Notification messageType='error' message={errorMessage} onClose={()=>setErrorMessage('')} />)}
+            {successMessage && (<Notification messageType='success' message={successMessage} onClose={()=>setSuccessMessage('')} />)}
 
             {/* Navigation */}
             <nav className="relative z-10 px-6 py-4 backdrop-blur-sm bg-white/5 border-b border-white/10">
@@ -88,7 +88,6 @@ const LandingPage = () => {
                                 <div className="flex items-center justify-center space-x-3 relative z-10">
                                     <Zap className="w-5 h-5 group-hover:animate-pulse" />
                                     <span>Generate URL</span>
-                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
                                 </div>
                             </button>
                         </Link>

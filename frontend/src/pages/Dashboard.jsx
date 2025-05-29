@@ -71,7 +71,7 @@ const AnalyticsDashboard = () => {
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const chartColors = ['#8b5cf6', '#ec4899', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#f97316'];
+    const chartColors = ['#34D399', '#FBBF24', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#f97316'];
 
     if (loading) {
         return (
@@ -314,15 +314,15 @@ const AnalyticsDashboard = () => {
                         <h3 className="text-lg sm:text-xl font-bold mb-4 bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
                             Device Distribution
                         </h3>
-                        <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-                            <div className="h-48 sm:h-60 w-full max-w-xs">
+                        <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+                            <div className="h-48 sm:h-60 w-full max-w-s p-4">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
                                         <Pie
                                             data={analyticsData.deviceWise}
                                             cx="50%"
                                             cy="50%"
-                                            outerRadius="80%"
+                                            outerRadius="75%"
                                             fill="#8884d8"
                                             dataKey="count"
                                             label={({ _id, percent }) => `${_id} ${(percent * 100).toFixed(0)}%`}
@@ -348,7 +348,7 @@ const AnalyticsDashboard = () => {
                                 {analyticsData.deviceWise.map((device, index) => (
                                     <div key={device._id} className="flex items-center justify-between lg:justify-start space-x-3 bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10">
                                         <div className="flex items-center space-x-3">
-                                            {device._id === 'Mobile' ? (
+                                            {device._id === 'mobile' ? (
                                                 <Smartphone className="w-5 h-5 text-purple-400" />
                                             ) : (
                                                 <Monitor className="w-5 h-5 text-blue-400" />

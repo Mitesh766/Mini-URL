@@ -14,6 +14,7 @@ import { USERS_URL } from './utils/constants';
 import { useDispatch } from 'react-redux';
 import { setLogin } from './redux/userSlice';
 import ContactPage from './pages/ContactPage';
+import ScrollToTop from './components/ScrollToTop';
 
 
 const App = () => {
@@ -30,30 +31,33 @@ const App = () => {
     verifyLoggedIn()
   }, [])
   return (
-    <Routes>
-  {/* Public Routes */}
-  <Route path="/" element={<LandingPage />} />
-  <Route path="/login" element={<Login />} />
-  <Route path="/contact" element={<ContactPage />} />
+    <>
+    <ScrollToTop/>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/contact" element={<ContactPage />} />
 
-  {/* Protected Routes */}
-  <Route
-    element={
-      <ProtectedRoute>
-        <Outlet />
-      </ProtectedRoute>
-    }
-  >
-    <Route path="/shorten" element={<UrlGenerator />} />
-    <Route path="/my-links" element={<ManageUrls />} />
-    <Route path="/report-issue" element={<ReportIssue />} />
-    <Route path="/analytics/:urlId" element={<Dashboard />} />
-  </Route>
+        {/* Protected Routes */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <Outlet />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/shorten" element={<UrlGenerator />} />
+          <Route path="/my-links" element={<ManageUrls />} />
+          <Route path="/report-issue" element={<ReportIssue />} />
+          <Route path="/analytics/:urlId" element={<Dashboard />} />
+        </Route>
 
-  {/* 404 Fallback */}
-  <Route path="*" element={<PageNotFound />} />
-</Routes>
+        {/* 404 Fallback */}
+        <Route path="*" element={<PageNotFound />} />
+      </Routes>
 
+    </>
   );
 };
 

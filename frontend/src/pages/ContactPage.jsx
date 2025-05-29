@@ -7,7 +7,7 @@ const ContactPage = () => {
 
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative text-white overflow-hidden">
+        <div  className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative text-white overflow-hidden">
             {/* Animated background elements */}
             <div className="fixed inset-0 -z-10">
                 <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -16,7 +16,7 @@ const ContactPage = () => {
             </div>
 
             {/* Navigation */}
-            <nav className="relative z-10 px-6 py-4 backdrop-blur-sm bg-white/5 border-b border-white/10">
+            <nav  className="relative z-10 px-6 py-4 backdrop-blur-sm bg-white/5 border-b border-white/10">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                      <div className="flex items-center space-x-3">
                         <div className="bg-gradient-to-r  from-purple-400 to-pink-400 p-2 rounded-xl shadow-lg">
@@ -38,7 +38,7 @@ const ContactPage = () => {
             <div className="relative z-10 max-w-6xl mx-auto px-6 py-16">
                 {/* Header */}
                 <div className="text-center mb-16">
-                    <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+                    <h1 id='contactStart' className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
                         Get In Touch
                     </h1>
                     <p className="text-xl text-gray-300 max-w-2xl mx-auto">

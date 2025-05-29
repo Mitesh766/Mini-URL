@@ -40,6 +40,12 @@ const ChangePasswordModal = ({ show, formData, setFormData, onCancel, onUpdate }
           >
             Update Password
           </button>
+          <button
+            onClick={onUpdate}
+            className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-xl text-white transition-all duration-300"
+          >
+           Remove Password
+          </button>
         </div>
       </div>
     </div>
