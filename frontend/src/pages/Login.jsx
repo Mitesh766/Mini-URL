@@ -113,6 +113,7 @@ const Login = () => {
                 email: data?.email,
                 _id: data?._id
             }
+            dispatch(setLogin(true))
             dispatch(addUserData(dataToStore));
             setTimeout(() => {
                 dispatch(setLoading(false));
@@ -138,7 +139,7 @@ const Login = () => {
             }, 1500)
             return () => clearTimeout(timer)
         }
-    }, [isLoggedIn,navigate])
+    }, [isLoggedIn, navigate, dispatch])
 
 
     return (

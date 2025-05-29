@@ -65,8 +65,7 @@ export const register = asyncHandler(async (req, res) => {
   const token = user.generateAuthToken();
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 1000 * 60 * 60 * 24 * 7,
+    secure: true,
     sameSite: "None",
   });
 
