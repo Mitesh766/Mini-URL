@@ -334,7 +334,7 @@ const ManageUrls = () => {
                           ) : (
                             <span className="flex items-center space-x-1 px-2 py-1 bg-red-500/20 text-red-400 rounded-lg text-xs">
                               <XCircle className="w-3 h-3" />
-                              <span>Disabled</span>
+                              <span>Inactive</span>
                             </span>
                           )}
                           {url.isPasswordProtected && (
