@@ -51,13 +51,13 @@ const LandingPage = () => {
                             </span>
                         </div>
                     </Link>
-                    <div className="hidden md:flex space-x-8 items-center">
+                    <div className="flex space-x-4 sm:space-x-8 items-center">
                         <Link to="/contact" className="hover:text-purple-300 transition-all duration-300 hover:scale-105">
                             Contact Us
                         </Link>
                         <button
                             onClick={isLoggedIn ? handleLogout : () => { navigate("/login") }}
-                            className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full cursor-pointer  hover:from-purple-700 hover:to-pink-700 transition-all duration-300 hover:scale-105 shadow-lg"
+                            className="px-3 sm:px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full cursor-pointer  hover:from-purple-700 hover:to-pink-700 transition-all duration-300 hover:scale-105 shadow-lg"
                         >
                             {isLoggedIn ? "Logout" : "Login"}
                         </button>

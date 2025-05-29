@@ -323,7 +323,7 @@ const ManageUrls = () => {
                       {/* Title and Status */}
                       <div className="flex flex-col  md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0">
                         <h3 className="text-lg font-semibold text-white break-words">
-                          {url?.title || url.originalUrl}
+                          {url?.title}
                         </h3>
                         <div className="flex flex-wrap items-center gap-2">
                           {url.isActive ? (
@@ -364,7 +364,7 @@ const ManageUrls = () => {
                         <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
                           <span className="text-gray-400 text-sm flex-shrink-0">Short URL:</span>
                           <div className="flex items-center space-x-2 min-w-0">
-                            <span className="text-purple-400 font-mono text-sm break-all">{getShortUrlPath(url.shortUrl)}</span>
+                            <span className="text-purple-400 font-mono text-sm break-all">{getShortUrlPath(url.shortUrl).length <= 40 ? (getShortUrlPath(url.shortUrl)) : (getShortUrlPath(url.shortUrl).slice(0, 37) + "...")}</span>
                             <button
                               onClick={async () => await handleUrlCopy(url)}
                               className="p-1 cursor-pointer hover:bg-white/10 rounded transition-colors duration-200 flex-shrink-0"
@@ -379,7 +379,7 @@ const ManageUrls = () => {
                         <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
                           <span className="text-gray-400 text-sm flex-shrink-0">Original:</span>
                           <div className="flex items-center space-x-2 min-w-0">
-                            <span className="text-gray-300 text-sm break-all">{url.originalUrl}</span>
+                            <span className="text-gray-300 text-sm break-all">{url.originalUrl.length <= 40 ? (url.originalUrl) : (url.originalUrl.slice(0, 37) + "...")}</span>
                             <button
                               onClick={() => window.open(url.originalUrl, '_blank')}
                               className="p-1 cursor-pointer hover:bg-white/10 rounded transition-colors duration-200 flex-shrink-0"

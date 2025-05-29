@@ -93,10 +93,10 @@ const UrlGenerator = () => {
             return;
         }
 
-        if (!validator.isURL(formData.originalUrl)) {
-            setError('Please enter a URL to shorten');
-            return;
-        }
+        // if (!validator.isURL(formData.originalUrl)) {
+        //     setError('Please enter a URL to shorten');
+        //     return;
+        // }
 
 
         if (formData.aliasType === 'custom' && !formData.customAlias) {
