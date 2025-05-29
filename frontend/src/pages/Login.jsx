@@ -238,7 +238,7 @@ const Login = () => {
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors duration-200"
+                                        className="absolute cursor-pointer right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors duration-200"
                                     >
                                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                     </button>
@@ -265,7 +265,7 @@ const Login = () => {
                                         <button
                                             type="button"
                                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors duration-200"
+                                            className="absolute cursor-pointer right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors duration-200"
                                         >
                                             {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                         </button>
@@ -279,7 +279,7 @@ const Login = () => {
                             <button
                                 type="submit"
                                 onClick={handleSubmit}
-                                className="group w-full mt-6 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-semibold text-white hover:from-purple-700 hover:to-pink-700 transform hover:scale-[1.02] transition-all duration-300 shadow-lg hover:shadow-purple-500/25 animate-fade-in-up animation-delay-600"
+                                className="group w-full cursor-pointer mt-6 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-semibold text-white hover:from-purple-700 hover:to-pink-700 transform hover:scale-[1.02] transition-all duration-300 shadow-lg hover:shadow-purple-500/25 animate-fade-in-up animation-delay-600"
                             >
                                 <div className="flex items-center justify-center space-x-2">
                                     <span>{isLogin ? 'Sign In' : 'Create Account'}</span>
@@ -312,7 +312,7 @@ const Login = () => {
                                 <button
                                     type="button"
                                     onClick={toggleMode}
-                                    className="ml-2 text-purple-400 hover:text-purple-300 font-medium transition-colors duration-200"
+                                    className="ml-2 text-purple-400 cursor-pointer hover:text-purple-300 font-medium transition-colors duration-200"
                                 >
                                     {isLogin ? 'Sign Up' : 'Sign In'}
                                 </button>
