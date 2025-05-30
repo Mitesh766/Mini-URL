@@ -68,7 +68,7 @@ Track your URL performance with detailed click statistics and see how your links
 
 **Website:** [minli.info](https://minli.info)
 
-**Demo Video:** [Watch Demo on Google Drive](DRIVE_LINK_HERE)
+**Demo Video:** [Watch Demo on Google Drive](https://drive.google.com/file/d/1Yv6wVGsSv7grtgJuSlBf4Ev8m3FlELVJ/view?usp=sharing)
 
 ---
 
