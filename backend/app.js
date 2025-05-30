@@ -61,7 +61,9 @@ app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
-app.listen(3000, () => {
+const PORT=process.env.PORT || 3000
+
+app.listen(PORT, () => {
   console.log("Server successfully started on port 3000");
 });
 
