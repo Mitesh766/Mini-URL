@@ -56,6 +56,7 @@ app.post('/:code', (req, res, next) => {
 
 
 
+
 // Fallback for React SPA - this should catch all non-API routes
 app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));

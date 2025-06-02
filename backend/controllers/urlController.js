@@ -48,11 +48,13 @@ export const shortenUrl = asyncHandler(async (req, res, next) => {
     res.status(400);
     throw new Error("Please fill all the required details.");
   }
+  
+  
+  if (!validator.isURL(originalUrl,{ require_protocol: true })) {
+    res.status(400);
+    throw new Error("Please enter a valid URL");
+  }
 
-  // if (!validator.isURL(originalUrl)) {
-  //   res.status(400);
-  //   throw new Error("Please enter a valid URL");
-  // }
 
   const SHORT_URL_BASE = "https://minli.info";
   const URL_BASE = "minli.info";

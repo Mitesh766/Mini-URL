@@ -11,6 +11,7 @@ import ShortUrl from "../models/ShortUrlModel.js";
  * @returns {Promise<string>} - A unique shortCode
  * @throws {Error} - Throws error if alias is taken or unique code couldn't be generated
  */
+
 export const generateUniqueShortCode = async (aliasType, customAlias) => {
   let shortCode = aliasType === "custom" ? customAlias : nanoid(8);
   

@@ -366,6 +366,8 @@ const findAndValidateShortUrl = async (code, isBotRequest = false) => {
     shortCode: code,
   });
 
+ 
+
   if (!shortUrl) {
     return { error: 'not_found', shortUrl: null };
   }
@@ -387,6 +389,7 @@ const findAndValidateShortUrl = async (code, isBotRequest = false) => {
 export const handleGetRequest = async (req, res, next) => {
   try {
     const { code } = req.params;
+
     const userAgent = req.get("User-Agent") || "";
     const isBotRequest = isLikelyBot(req);
     

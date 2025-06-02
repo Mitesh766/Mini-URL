@@ -93,10 +93,10 @@ const UrlGenerator = () => {
             return;
         }
 
-        // if (!validator.isURL(formData.originalUrl)) {
-        //     setError('Please enter a URL to shorten');
-        //     return;
-        // }
+        if (!validator.isURL(formData.originalUrl, { require_protocol: true })) {
+            setError('Please enter a valid URL to shorten');
+            return;
+        }
 
 
         if (formData.aliasType === 'custom' && !formData.customAlias) {
@@ -168,7 +168,7 @@ const UrlGenerator = () => {
             const timer = setTimeout(() => {
                 if (!isLoggedIn) {
                     setError("Please Login");
-                   
+
                     navigate("/login", { replace: true })
                 }
             }, 1500)
@@ -265,10 +265,10 @@ const UrlGenerator = () => {
                                     </button>
 
                                     <Link to="/my-links">
-                                    <button className="flex items-center cursor-pointer justify-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all duration-300 text-sm">
-                                        <ExternalLink className="w-4 h-4 flex-shrink-0" />
-                                        <span>Manage URLs</span>
-                                    </button>
+                                        <button className="flex items-center cursor-pointer justify-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all duration-300 text-sm">
+                                            <ExternalLink className="w-4 h-4 flex-shrink-0" />
+                                            <span>Manage URLs</span>
+                                        </button>
                                     </Link>
 
                                     <button

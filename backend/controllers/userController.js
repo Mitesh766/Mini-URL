@@ -148,6 +148,31 @@ export const verifyLogin = asyncHandler(async (req, res) => {
   res.status(200).json({ isLoggedIn: true });
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const logout = asyncHandler(async (req, res) => {
   try {
     res
